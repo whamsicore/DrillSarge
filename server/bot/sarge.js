@@ -16,7 +16,15 @@ module.exports = function(token){
   var client = new Slack(slackToken, autoReconnect, autoMark); //instantiate client connection
 
   /** @type {String} State of our bot */
-  var state = 'neutral'; // options: neutral, conversing
+  this.state = {
+    conversing:false, // options: neutral, conversing
+    memory: { //relevant data
+      temp:{}, //used for current/ongoing conversation
+      daily:{}, // used to save relevant information about the days 
+      lifetime:{}, // require the use of database
+    }
+  }
+
   var bot = this; 
   // yessir: ends when every user types yessir, or after 10 seconds 
 
@@ -28,19 +36,12 @@ module.exports = function(token){
   // } // conversation
 
   this.memory = {
-    daily:{}, // used to save relevant information about the days 
-    temp:{} //used for current conversation
   } //memory
-
-  this.endConversation = function(){
-    this.state = 'neutral';
-    this.memory.temp = {}; //reset temporary memory
-  };
 
   /** Triggers when Slackbot is loaded  */
   client.on('open', function(){
-    var channel = helpers.slack.findChannelByName('general', client);
-
+    var channel = helpers.slack.findChannelByName('general', client); 
+    
     // intro
     var response = "Hi everyone, this is Sarge. \n";
     response += "The time right now is "+new Date().getUTCMinutes()+" \n";
@@ -66,8 +67,10 @@ module.exports = function(token){
 
   client.on('message', function(data){
     var channel = client.getChannelGroupOrDMByID(data.channel);
+    var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
     var user = client.getUserByID(data.user);
     var msg = data.text;
+    var conversing = bot.state.conversing;
 
     if(user.id!==client.self.id){ // message comes from user, not bot
       
@@ -75,22 +78,20 @@ module.exports = function(token){
       // TAKE COMMAND   //
       ////////////////////
 
-      if(state==='neutral'){
+      if(!conversing){
         var command = helpers.parse.command(msg, client);
 
         if(command === 'yessir'){
-          helpers.command.yessir(channel, bot);
+          helpers.start.yessir(channel, bot, onlineUsers);
 
         }else if(command === 'poll'){
-          helpers.command.poll(user, channel, bot);
-          
+          helpers.start.poll(user, channel, bot);          
 
         }else if(command === 'game'){
 
 
 
         }else if(command === 'salute'){  
-
           channel.send('<@' + user.id + '> at ease soldier ;-)');
 
         }
@@ -98,17 +99,21 @@ module.exports = function(token){
       ///////////////////
       // TAKE RESPONSE //
       ///////////////////
-      }else if(state ==='yessir'){ 
-        helpers.process.yessir(msg, channel, user, bot);
-      
-      }else if(state==='poll'){
-        helpers.process.poll(msg, channel, user, bot);
+      }else{ // conversing
+        var topic = bot.state.memory.temp.topic; 
 
-      }else if(state==='trivia'){
+        if(topic ==='yessir'){ 
+          helpers.during.yessir(msg, channel, user, bot, onlineUsers);
+        
+        }else if(topic==='poll'){
+          helpers.during.poll(msg, channel, user, bot);
 
-      }else if(state===''){
+        }else if(topic==='trivia'){
 
-      } //if(state)
+        }else if(topic===''){
+
+        } //if(topic)
+      } //if(conversing)
     } //if(appropriate)
 
     
@@ -143,6 +148,32 @@ module.exports = function(token){
   client.login()
 
   
+  //////////////////////
+  // MEMORY FUNCTIONS //
+  //////////////////////
+
+  /**
+   * start a conversation by updating temporary memory
+   * @param  {sting} 'topic' conversation topic
+   * @param  {object} context other context to add to conversation
+   */
+  this.startConversation = function(topic, context){
+    // bot.state.conversation = false;
+    bot.state.conversing = true;
+    bot.state.memory.temp = {
+      topic:topic
+    }; //reset temporary memory
+    
+    for(var key in context){ // map all context tuples to temp memory
+      bot.state.memory.temp.key = context.key; 
+    } //for
+  };
+
+  this.endConversation = function(){
+    bot.state.conversing = false;
+    bot.state.memory.temp = {}; //reset temporary memory
+  };
+
   /////////////////
   // DAILY TASKS //
   /////////////////

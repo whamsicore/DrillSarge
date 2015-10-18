@@ -6,16 +6,17 @@ module.exports = {
     command: parseCommand, 
     option: parseOption,
   },
-  process:{
-    yessir: processYessir,
-    poll: processPoll,
-  }, 
-  command: {
-    yessir: commandYessir,
-    poll: commandPoll,
+  start: { // beginning a conversation
+    yessir: startYessir,
+    poll: startPoll,
   },
+  during:{ // when conversation has started already
+    yessir: duringYessir,
+    poll: duringPoll,
+  }, 
   slack:{
-    findChannelByName:findChannelByName
+    findChannelByName:findChannelByName, 
+    getOnlineUsersForChannel: getOnlineUsersForChannel
   }
 }
 
@@ -53,122 +54,173 @@ function parseOption (msg, client){
 
 
 
-function commandYessir (channel, bot){
-  bot.state = 'yessir';
+function startYessir (channel, bot, onlineUsers){
+  // var topic = bot.state.memory.temp.topic = 'yessir';
+  bot.startConversation('yessir');
+
   channel.send("Everybody say yessir!");
-    
+  
   setTimeout(function(){
-    channel.send("Good, looks like everyone is on board!");
-    bot.endConversation();
+    if(bot.state.memory.temp.topic==='yessir'){
+      /** Chastise users who have not answered */
+      var response = "Alright, time's up! \n";
+
+      for(var key in onlineUsers){
+        var user = onlineUsers[key];
+        var memory = bot.state.memory.temp.usersWhoAnswered;
+        if(memory.indexOf(user.id) === -1){ //user has not answered
+          // do nothing?
+          response += "<@"+ user.id +">, "
+        }else{
+          // response += "<@"+ user.id +"> Good! (point+1). \n"
+        }
+
+      } //for
+      
+      response += "are you deaf? I got my eyes on YOU!"
+      
+      channel.send(response);
+      bot.endConversation();
+
+    }
 
   }, 5000);
-} //commandYessir
+} //startYessir
 
 
-function commandPoll (user, channel, bot){
-  bot.state = 'poll';
-  bot.memory.temp.creator_id = user.id;
-  bot.memory.temp.waiting = true;
+
+function startPoll (user, channel, bot){
+  bot.startConversation('poll', {
+    creator_id: user.id, 
+    waiting: true
+  }); //topic='poll'
   
   channel.send("Everybody say yessir!");
   
   setTimeout(function(){
-    if(bot.memory.temp.waiting){
+    if(bot.state.memory.temp.waiting){
       channel.send("Get back to me when you've made up your mind, son!");
       bot.endConversation();
     } //if
-  }, 10000);
-} //commandPoll
-
-
-function processPoll (user, channel, bot){
-  var creator_id = bot.memory.temp.creator_id;
-
-  if( user.id === creator_id ){
-
-
-  }
-
-
-} //commandPoll
+  }, 5000); //note: change to 10 seconds once complete
+} //startPoll
 
 
 
 
-function processYessir (msg, channel, user){
-  var memory = bot.memory;
+
+
+
+function duringYessir (msg, channel, user, bot, onlineUsers){
+  var memory = bot.state.memory;
 
   if(msg==='yessir'){
+    console.log('inside of yessir');
+    /** @type {array} array of answered user ids */
     var answeredList = memory.temp.usersWhoAnswered = memory.temp.usersWhoAnswered || [];
     
     if(answeredList.indexOf(user.id)===-1){ //user has not answered before
       
       if(answeredList.length===0){ 
-        updateScore(user, 'first to answer');
+        updateScore(user, 'answering first', channel);
       }else{
-        updateScore(user, 'answering');
+        updateScore(user, 'answering', channel);
       }
 
       answeredList.push(user.id);
+
+      /** All users have answered */
+      if(answeredList.length===onlineUsers.length){ 
+        channel.send("Good job guys, everyone gets extra points.");
+        for(var key in onlineUsers){
+          var user = onlineUsers[key];
+          updateScore(user, 'extra', channel);
+        }
+        bot.endConversation()
+      }
     } //if
   }else{ //interupts are reprimanded
-    updateScore(user, "don't interrupt");
+    updateScore(user, "don't interrupt", channel);
   } //if
 
-} //processYessir
+} //duringYessir
 
 
-function updateScore(user, reason){
+
+function duringPoll (user, channel, bot){
+  var creator_id = bot.state.memory.temp.creator_id;
+
+  if( user.id === creator_id ){
+    // channel.send();
+    console.log("from poll creator");
+
+  }
+
+
+} //duringPoll
+
+
+
+
+
+
+function updateScore(user, reason, channel){
   var change = 0; 
-  if(reason==='answering'){
-    change = 1;
 
-  }else if(reason === 'first to answer'){
+  /** determine change amount */
+  if(reason === 'answering!'){
+    change = 1;
+  }else if(reason === 'answering first!'){
     change = 2;
-  }else if(reason === 'interrupting'){
+  }else if(reason === 'interrupting!'){
     change = -1;
+
+  }else if(reason === 'extra'){
+    change = 1;
 
   } //if(reason)
 
-  //add user to db if not exist
+  /** add user to db if not exist */
   if(!db.users[user.id]){
     db.users[user.id] = {
-      score:0
+      points:0
     }
   }
-  db.users[user.id].score += change; //update database
-  if(change>0){
-    channel.send('<@'+user.id+'> score+'+change+' ('+ reason +')');
 
+  /** update database */
+  db.users[user.id].points += change; //update database
+  /** output  */
+  if(change>0){
+    channel.send('<@'+user.id+'> '+ change +'points for '+ reason +' ('+db.users[user.id].points+' total)');
   }else{
-    channel.send('<@'+user.id+'> score-'+Math.absolute(change)+' ('+ reason +')');
-    
+    channel.send('<@'+user.id+'> '+ Math.absolute(change)+' points for '+ reason +' ('+db.users[user.id].points+' total)');
   }
 
 } //updateScore
 
-function processAnswer (msg){
-  var response = 'Hey there <@' + user.id + '>';
-  channel.send(response);
+// function processAnswer (msg){
+//   var response = 'Hey there <@' + user.id + '>';
+//   channel.send(response);
 
-  /** single word commands */
-  var regex = new RegExp("<@" + botId + ">:\\s(\\w+)", "i");
-  var match = message.match(regex);  
+//   /** single word commands */
+//   var regex = new RegExp("<@" + botId + ">:\\s(\\w+)", "i");
+//   var match = message.match(regex);  
   
-  if(match){
-    var command = match[1];
-    console.log("this is a command, "+command)
+//   if(match){
+//     var command = match[1];
+//     console.log("this is a command, "+command)
 
-    if(command==='yessir'){
-      console.log('exercise begin!');
-    }
-  } //if    
-} //processAnswer
+//     if(command==='yessir'){
+//       console.log('exercise begin!');
+//     }
+//   } //if    
+// } //processAnswer
 
 /**
- * return a channel from slack object based on name
- * @param  {string} name [description]
- * @return {[type]}      [description]
+ * func: Return a channel from slack object based on name
+ * @param  {string} name   
+ * @param  {object} client 
+ * @return {object}        slack channel object
  */
 function findChannelByName(name, client){
 
@@ -182,5 +234,25 @@ function findChannelByName(name, client){
 
   return null; //no match found 
 } //findChannelByName
+
+/**
+ * Find all the online users (human) in the channel
+ * @param  {object} channel information about the current channel
+ * @param  {object} client  slack client
+ * @return {array}         array of user objects
+ */
+function getOnlineUsersForChannel (channel, client) {
+  if (!channel){
+    return [] 
+  }else{
+      return (channel.members || [])
+          .map(function(id) { 
+            return client.users[id] })
+          .filter(function(u) { 
+            return !!u && !u.is_bot && u.presence === 'active'
+          })
+    
+   }  
+};
 
 
