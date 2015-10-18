@@ -1,0 +1,16 @@
+<div ng-controller="HomepageCtrl" ng-app="slackBotApp.homepage">
+  <div class='homepage_container'>
+    <div class='homepage_title_container'>
+      <span class='homepage_title_sarge'>Sarge</span>
+    </div>
+    <div class='homepage_slack_input_container'>
+        <p>
+          <input class="name-input" ng-model="slackChannelName" placeholder='Slack Channel Name' autofocus></input>
+        </p>
+        <p>
+          <input class="homepage_slackapi_input" ng-model="slackAPIKey" placeholder='API Key'></input>
+        </p>
+        <md-button class="md-raised homepage_slack_input_submit" ng-click="saveSlackInfo()">I'm ready for Sarge</md-button>
+    </div>
+  </div>
+</div>

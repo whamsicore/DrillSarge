@@ -1,0 +1,55 @@
+@font-face {
+    font-family: "quicksand";
+    src: url("../fonts/quicksand/Quicksand-Regular.otf") format("truetype");
+}
+html, body {
+  height: 100%;
+  font-family: "quicksand", Verdana, Tahoma;
+}
+
+/********************************
+******  homepage.html CSS  ******
+********************************/
+.homepage_title_sarge {
+  font-size:5em;
+}
+.homepage_title_container {
+  text-align: center;
+  margin-top:1em;
+}
+.homepage_slack_input_container {
+  text-align:center;
+  vertical-align:middle;
+  margin-top:5em;
+}
+div .homepage_slack_input_container input , .homepage_slack_input_container input :focus {
+  font-family: "quicksand", Verdana, Tahoma;
+  font-size:3em;
+  border: none;
+  outline: 0;
+  text-align: center;
+  border-bottom: 1px solid #e0e0e0;
+}
+.homepage_slackapi_input {
+  margin-top:1em;
+}
+.homepage_slack_input_submit {
+  font-size:1.5em;
+  margin-top:1.5em;
+}
+
+/********************************
+******  confirmPage.html CSS  ******
+********************************/
+.confirm_page_text_container {
+  text-align: center;
+  margin-top:20%;
+}
+.confirm_page_text_name {
+  font-size:2em;
+}
+.confirm_page_navigate_to_home {
+  font-size:1.5em;
+  margin-top:1.5em;
+  text-align:center;
+}

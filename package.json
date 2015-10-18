@@ -1,0 +1,22 @@
+{
+  "name": "botClient",
+  "version": "0.1.5",
+  "description": "bot client",
+  "main": "app.js",
+  "scripts": {
+    "start": "nodemon server/server.js"
+  },
+  "dependencies": {
+    "body-parser": "^1.13.3",
+    "bower": "^1.5.3",
+    "express": "4.13.3",
+    "mongoose": "^4.1.6", 
+    "node-schedule": "^0.2.9",
+    "slack-client": "^1.4.1"
+  },
+  "engines": {
+    "node": "0.12.7",
+    "npm": "2.1.x"
+  },
+  "license": "MIT"
+}
