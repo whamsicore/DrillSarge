@@ -5,7 +5,7 @@ var Slack = require('slack-client');
 var cron = require('node-schedule');
 
 var helpers = require('./helpers');
-var db = require('./fakeDb.js');
+var db = require("../db/fakeDb.js");
 
 var autoReconnect = true, // Automatically reconnect after an error response from Slack.
     autoMark = true; // Automatically mark each message as read after it is processed.
@@ -17,6 +17,7 @@ module.exports = function(token){
 
   /** @type {String} State of our bot */
   var state = 'neutral'; // options: neutral, conversing
+  var bot = this; 
   // yessir: ends when every user types yessir, or after 10 seconds 
 
   // this.conversation = {
@@ -26,12 +27,15 @@ module.exports = function(token){
   //   waiting: false //Bool. for response
   // } // conversation
 
-  var memory = {
+  this.memory = {
     daily:{}, // used to save relevant information about the days 
     temp:{} //used for current conversation
   } //memory
 
-
+  this.endConversation = function(){
+    this.state = 'neutral';
+    this.memory.temp = {}; //reset temporary memory
+  };
 
   /** Triggers when Slackbot is loaded  */
   client.on('open', function(){
@@ -70,25 +74,16 @@ module.exports = function(token){
       ////////////////////
       // TAKE COMMAND   //
       ////////////////////
+
       if(state==='neutral'){
-        var command = helpers.process.command(msg, client);
+        var command = helpers.parse.command(msg, client);
 
         if(command === 'yessir'){
-          helpers.process.command.yessir.bind(this)(channel)
-
-          state = 'yessir';
-          channel.send("Everybody say yessir!");
-          
-          setTimeout(function(){
-            channel.send("Good, looks like everyone is on board!");
-            this.endConversation();
-            state = 'neutral'; //state reset
-
-          }.bind(this), 5000);
+          helpers.command.yessir(channel, bot);
 
         }else if(command === 'poll'){
+          helpers.command.poll(user, channel, bot);
           
-          var content = helpers.process.option(msg, client);
 
         }else if(command === 'game'){
 
@@ -104,10 +99,10 @@ module.exports = function(token){
       // TAKE RESPONSE //
       ///////////////////
       }else if(state ==='yessir'){ 
-        helpers.process.yessir(msg, channel, user, memory);
+        helpers.process.yessir(msg, channel, user, bot);
       
       }else if(state==='poll'){
-        helpers.process.poll(msg, channel, user, memory);
+        helpers.process.poll(msg, channel, user, bot);
 
       }else if(state==='trivia'){
 
@@ -147,10 +142,7 @@ module.exports = function(token){
 
   client.login()
 
-  this.endConversation = function(){
-    memory.temp = {}; //reset temporary memory
-
-  };
+  
   /////////////////
   // DAILY TASKS //
   /////////////////

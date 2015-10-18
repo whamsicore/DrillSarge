@@ -1,11 +1,18 @@
 /** helper bot functions */
-var db = require("./fakeDb.js");
+var db = require("../db/fakeDb.js");
 
 module.exports = {
-  process:{
+  parse:{
     command: parseCommand, 
-    option: parseOption, 
-    yessir: processYessir 
+    option: parseOption,
+  },
+  process:{
+    yessir: processYessir,
+    poll: processPoll,
+  }, 
+  command: {
+    yessir: commandYessir,
+    poll: commandPoll,
   },
   slack:{
     findChannelByName:findChannelByName
@@ -46,33 +53,51 @@ function parseOption (msg, client){
 
 
 
-
-function processYessir (msg, channel, user, memory){
-
-  if(msg==='yessir'){
-    var answeredList = memory.temp.usersWhoAnswered = memory.temp.usersWhoAnswered || [];
+function commandYessir (channel, bot){
+  bot.state = 'yessir';
+  channel.send("Everybody say yessir!");
     
-    if(answeredList.indexOf(user.id)===-1){ //user has not answered before
-      
-      if(answeredList.length===0){ 
-        updateScore(user, 'first to answer');
-      }else{
-        updateScore(user, 'answering');
-      }
+  setTimeout(function(){
+    channel.send("Good, looks like everyone is on board!");
+    bot.endConversation();
 
-      answeredList.push(user.id);
-    } //if
-  }else{ //interupts are reprimanded
-    updateScore(user, "don't interrupt");
-  } //if
-
-} //processYessir
+  }, 5000);
+} //commandYessir
 
 
-
-function processPoll (msg, channel, user, memory){
-  var pollState = memory.temp.pollState || 'start';
+function commandPoll (user, channel, bot){
+  bot.state = 'poll';
+  bot.memory.temp.creator_id = user.id;
+  bot.memory.temp.waiting = true;
   
+  channel.send("Everybody say yessir!");
+  
+  setTimeout(function(){
+    if(bot.memory.temp.waiting){
+      channel.send("Get back to me when you've made up your mind, son!");
+      bot.endConversation();
+    } //if
+  }, 10000);
+} //commandPoll
+
+
+function processPoll (user, channel, bot){
+  var creator_id = bot.memory.temp.creator_id;
+
+  if( user.id === creator_id ){
+
+
+  }
+
+
+} //commandPoll
+
+
+
+
+function processYessir (msg, channel, user){
+  var memory = bot.memory;
+
   if(msg==='yessir'){
     var answeredList = memory.temp.usersWhoAnswered = memory.temp.usersWhoAnswered || [];
     
@@ -91,6 +116,7 @@ function processPoll (msg, channel, user, memory){
   } //if
 
 } //processYessir
+
 
 function updateScore(user, reason){
   var change = 0; 
@@ -104,6 +130,12 @@ function updateScore(user, reason){
 
   } //if(reason)
 
+  //add user to db if not exist
+  if(!db.users[user.id]){
+    db.users[user.id] = {
+      score:0
+    }
+  }
   db.users[user.id].score += change; //update database
   if(change>0){
     channel.send('<@'+user.id+'> score+'+change+' ('+ reason +')');
