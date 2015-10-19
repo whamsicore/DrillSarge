@@ -10,56 +10,42 @@ var script = require('./script');
 
 
 
-var autoReconnect = true, // Automatically reconnect after an error response from Slack.
-    autoMark = true; // Automatically mark each message as read after it is processed.
 
 module.exports = function(token){  
-  /** Connect to the slack client */
-  slackToken = token || 'xoxb-12608710676-WToSXWoZrkJayDKbFRAs2JpL';
+  /** slack client connection variables */
+  var autoReconnect = true, // Automatically reconnect after an error response from Slack.
+      autoMark = true, // Automatically mark each message as read after it is processed.
+      slackToken = token || 'xoxb-12608710676-WToSXWoZrkJayDKbFRAs2JpL';
+  /** @type {Slack} instantiate client connection */
   var client = new Slack(slackToken, autoReconnect, autoMark); //instantiate client connection
+  
+  /** @type {object} used to give access of object to methods via closure */
+  var bot = this; 
 
-  /** @type {String} State of our bot */
+  /** @type {Object} Contextual state for Sarge AI */
+  //NOTE: based on my understanding of AI having consciousness and memory components
   this.state = {
+    //note: consider refactoring into something like "consciousness"
     conversing:false, // options: neutral, conversing
-    memory: { //relevant data
-      temp:{}, //used for current/ongoing conversation
-      daily:{}, // used to save relevant information about the days 
-      lifetime:{}, // require the use of database
+    memory: { //short  data
+      temp:{}, //short-term memory: used for current/ongoing conversation
+      daily:{}, //middle-term memory (not currently in use): used to save relevant information about the current day. Wiped at 12 a.m. PST. 
+      lifetime:{}, //long-term memory (not currently in use): require the use of database
     }
   }
 
-  var bot = this; 
   
-  this.memory = {
-  } //memory
 
   /** Triggers when Slackbot is loaded  */
   client.on('open', function(){
     var channel = helpers.slack.findChannelByName('general', client); 
     
-    // intro
-    var response = "Hi everyone, this is Sarge. \n";
-    response += "The time right now is "+new Date().getUTCMinutes()+" \n";
-    response += "I'm here to help every everyone get to know everyone else!"
-    channel.send(response);
-
-    // further details
-    // response = "Hi everyone, this is Sarge. \n";
-    // response += "The time right now is "+new Date().getUTCMinutes()+" \n";
-    // response += "I'm here to help every everyone get to know everyone else!"
-    // channel.send(response);
-
-
-    /** Ask question every hour  */  
-    // var j = cron.scheduleJob('* * * * * *', function(){ 
-    //     console.log('The answer to life, the universe, and everything!');
-    // });
-
-  }); // client.on open
+    helpers.show.about(channel);
+  }); 
 
 
 
-
+  /** Triggers anytime a new message is sent */
   client.on('message', function(data){
     var channel = client.getChannelGroupOrDMByID(data.channel);
     var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
@@ -72,7 +58,7 @@ module.exports = function(token){
       ////////////////////
       // TAKE COMMAND   //
       ////////////////////
-
+      /** NOTE: only if there is no ongoing conversation */
       if(!conversing){
         var command = helpers.parse(msg);
         
@@ -127,6 +113,7 @@ module.exports = function(token){
       ///////////////////
       // TAKE RESPONSE //
       ///////////////////
+      /** there is an ongoing conversation */
       }else{ // conversing
         var topic = bot.state.memory.temp.topic; 
         console.log('test topic='+topic);
@@ -144,27 +131,6 @@ module.exports = function(token){
       } //if(conversing)
     } //if(appropriate)
 
-    
-    
-    // var response = 'Hey there <@' + user.id + '>';
-    // channel.send(response);
-
-    // /** single word commands */
-    // var regex = new RegExp("<@" + botId + ">:\\s(\\w+)", "i");
-    // var match = message.match(regex);  
-    
-    // if(match){
-    //   var command = match[1];
-    //   console.log("this is a command, "+command)
-
-    //   if(command==='rollcall'){
-    //     console.log('exercise begin!');
-    //   }
-    // } //if
-
-
-
-
 
   }); //client.on message
 
@@ -173,13 +139,41 @@ module.exports = function(token){
       console.error("Error", err)
   });
 
+
   client.login()
 
-  
-  //////////////////////
-  // MEMORY FUNCTIONS //
-  //////////////////////
 
+  /////////////////
+  // DAILY TASKS //
+  /////////////////
+
+  /** 10 a.m. Begin day with sharing */
+  var j1 = cron.scheduleJob('* 10 * * *', function(){ //10 a.m.
+      
+  });
+  
+  /** 3 tests during the day */
+  var j2 = cron.scheduleJob('* 11 * * *', function(){ //11 a.m
+      
+  });
+
+  var j3 = cron.scheduleJob('30 13 * * *', function(){ //1:30 p.m.
+      
+  });
+
+  var j4 = cron.scheduleJob('30 15 * * *', function(){ //3:30 p.m.
+      
+  });
+
+  /** reflection, award ceremony */
+  var j5 = cron.scheduleJob('30 16 * * *', function(){ //3:30 p.m.
+      
+  });
+
+  ////////////////////////////
+  // CONVERSATION FUNCTIONS //
+  ////////////////////////////
+  /** NOTE: handle our own consciousness */
   /**
    * start a conversation by updating temporary memory
    * @param  {object} context other context to add to conversation

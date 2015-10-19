@@ -12,8 +12,8 @@ mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/slackBotWeb');
 // Slackclient //
 /////////////////
 
-var sarge = require('./bot/sarge.js');
-var bot = new sarge(); //insert token
+// var sarge = require('./bot/sarge.js');
+// var bot = new sarge(); //insert token
 // for testing, create a single bot
 // bot.addBot(); 
 

@@ -174,10 +174,10 @@ function duringPoll (user, channel, bot){
 function showSchedule (channel){
   var response = '';
   response += ">>>Daily Schedule: \n"
-  response += "```9 o'clock: Meet in #general for daily sharing \n"
+  response += "```10 a.m.: Meet in #general for daily sharing \n"
   response += "11 a.m.: Test your knowledge of teammates and earn points \n"
-  response += "1 p.m.: Test your knowledge of teammates and earn points \n"
-  response += "3 p.m.: Test your knowledge of teammates and earn points \n"
+  response += "1:30 p.m.: Test your knowledge of teammates and earn points \n"
+  response += "3:30 p.m.: Test your knowledge of teammates and earn points \n"
   response += "4:30 p.m.: Daily reflection ```\n"
   channel.send(response);
 } //showSchedule
