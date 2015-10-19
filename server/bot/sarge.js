@@ -77,52 +77,71 @@ module.exports = function(token){
           var tag = command.tag; 
           var data = command.data; 
 
-          if(tag === 'rollcall'){ //conversation
-            helpers.start.rollcall(channel, bot, onlineUsers);
+          if(tag === 'poke'){ //show. random res.
+            channel.send('<@' + user.id + '> '+script.res.poke[ Math.floor( Math.random()*script.res.poke.length ) ] + " `(-1 pt.)`");
+            helpers.users.point.minus(user);
+          }
+          else if(tag === 'salute'){ //show: random res.
+            channel.send('<@' + user.id + '> '+script.res.salute[ Math.floor( Math.random()*script.res.salute.length ) ]  + " `(+1 pt.)`");
+            helpers.users.point.plus(user);
 
-          }else if(tag === 'createpoll'){ //conversation
-            helpers.start.pollCreate(bot, channel, data, user);
+          } 
+          else if(tag === 'help'){ //show
+            helpers.show.help(channel);          
 
-          }else if(tag === 'pollIncomplete'){ //error
-            helpers.start.pollIncomplete(channel);          
-
-          }else if(tag === 'share'){ //conversation
-            // helpers.show.about(channel);          
-
-
-          }else if(tag === 'random'){ //conversation
-            helpers.start.random(bot, channel, onlineUsers);
-
-
-          }else if(tag === 'quit'){ //conversation
-            bot.endConversation();
-
-          }else if(tag === 'about'){ //show
+          }
+          else if(tag === 'about'){ //show
             helpers.show.about(channel);          
 
 
-          }else if(tag === 'schedule'){ //show
-            helpers.show.schedule(channel);          
-
-
-          }else if(tag === 'leaderboard'){ //show
+          }
+          else if(tag === 'leaderboard'){ //show
             helpers.show.leaderBoard(channel, onlineUsers);          
 
 
-          }else if(tag === 'help'){ //show
-            helpers.show.help(channel);          
+          }
+          else if(tag === 'rollcall'){ //conversation
+            helpers.start.rollcall(channel, bot, onlineUsers);
+
+          }
+          else if(tag === 'schedule'){ //show
+            helpers.show.schedule(channel);          
 
 
-          }else if(tag === 'poke'){ //show. random res.
-            channel.send('<@' + user.id + '> '+script.res.poke[ Math.floor( Math.random()*script.res.poke.length ) ] );
+          }
+          else if(tag === 'createpoll'){ //conversation
+            helpers.start.pollCreate(bot, channel, data, user);
 
-          }else if(tag === 'review'){ //show
+          }
+          else if(tag === 'pollIncomplete'){ //error
+            helpers.start.pollIncomplete(channel);          
+
+          }
+          else if(tag === 'share'){ //conversation
+            // helpers.show.about(channel);          
+            helpers.start.random(bot, channel, onlineUsers);
 
 
-          }else if(tag === 'salute'){ //show: random res.
-            channel.send('<@' + user.id + '> '+script.res.salute[ Math.floor( Math.random()*script.res.salute.length ) ] );
+          }
+          else if(tag === 'random'){ //conversation
+            helpers.start.random(bot, channel, onlineUsers);
 
-          } //switch(tag)         
+
+          }
+          else if(tag === 'challenge'){ //conversation
+            helpers.start.random(bot, channel, onlineUsers);
+
+
+          }
+          else if(tag === 'quit'){ //conversation
+            channel.send('coming soon...');
+            // bot.endConversation();
+
+          }
+          else if(tag === 'challenge'){ //show
+
+
+          } ////switch(tag)         
         } //if(command)
 
       ///////////////////
@@ -165,28 +184,38 @@ module.exports = function(token){
   /////////////////
 
   /** 10 a.m. Begin day with sharing */
-  var j1 = cron.scheduleJob('* 10 * * *', function(){ //10 a.m.
+  var j1 = cron.scheduleJob('* 10 * * *', function(){ //10 a.m
+      var channel = helpers.slack.findChannelByName('general', client); 
+      var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
       helpers.start.rollcall(channel, bot, onlineUsers);
     
   });
   
   /** 3 tests during the day */
   var j2 = cron.scheduleJob('* 11 * * *', function(){ //11 a.m
+      var channel = helpers.slack.findChannelByName('general', client); 
+      var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
       helpers.start.random(bot, channel, onlineUsers);
   });
 
   var j3 = cron.scheduleJob('30 13 * * *', function(){ //1:30 p.m.
+      var channel = helpers.slack.findChannelByName('general', client); 
+      var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
       helpers.start.random(bot, channel, onlineUsers);
       
   });
 
   var j4 = cron.scheduleJob('30 15 * * *', function(){ //3:30 p.m.
+      var channel = helpers.slack.findChannelByName('general', client); 
+      var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
       helpers.start.random(bot, channel, onlineUsers);
       
   });
 
   /** reflection, award ceremony */
   var j5 = cron.scheduleJob('30 16 * * *', function(){ //3:30 p.m.
+      var channel = helpers.slack.findChannelByName('general', client); 
+      var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
       helpers.start.leaderBoard(channel, onlineUsers);
       
   });

@@ -9,7 +9,7 @@ module.exports = {
   'schedule': new RegExp('^schedule$', 'i'), //show schedule for trivia and games
   'about': new RegExp('^about$', 'i'), //show schedule for trivia and games
   'leaderboard': new RegExp('^leaderboard$', 'i'), //show everyones scores
-  'test': new RegExp('^test$', 'i'), 
+  'challenge': new RegExp('^challenge$', 'i'), 
   'salute': new RegExp('^salute$', 'i'), 
   'poke': new RegExp('^poke$', 'i'), //say random blurb
   'hungry': new RegExp('^hungry$', 'i'), //yelp restaurants

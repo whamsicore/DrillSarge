@@ -26,6 +26,12 @@ module.exports = {
   slack:{
     findChannelByName:findChannelByName, 
     getOnlineUsersForChannel: getOnlineUsersForChannel
+  }, 
+  users:{
+    point:{
+      minus: pointMinus,
+      plus: pointPlus
+    }
   }
 }
 
@@ -46,9 +52,9 @@ function startRollCall (channel, bot, onlineUsers){
   var memory = bot.state.memory;
   
 
-  var reminder = setInterval(function(){
+  bot.reminder = setInterval(function(){
     if(!bot.state.conversing){
-      clearInterval(reminder);
+      clearInterval(bot.reminder);
     }else{
       var answeredUserIds = memory.temp.usersWhoAnswered;
       var unansweredList = getUnansweredUserIds(answeredUserIds, onlineUsers);
@@ -119,10 +125,10 @@ function startPoll (bot, channel, onlineUsers){
   res += "Question: " + getPollDisplayString(memory.poll);
   channel.send(res);
 
-  var reminder = setInterval(function(){
+  bot.reminder = setInterval(function(){
     if(!bot.state.conversing){
     
-      clearInterval(reminder);
+      clearInterval(bot.reminder);
 
     }else{
 
@@ -435,25 +441,25 @@ function showLeaderBoard (channel, onlineUsers){
 
 
 function showHelp (channel){
-  var response = '';
+  var res = '';
 
-  response += "Useful Commands: \n"
-  response += "```help: show commands \n"
-  response += "schedule: show daily schedule \n"
-  response += "rollcall: make sure everyone is present \n"
-  response += "createpoll <question>?: poll the entire team! \n"
-  response += "random: poll the team with a random question! \n"
-  response += "leaderboard: show leaderboard \n"
-  response += "test: test your team on interpersonal knowledge \n"
-  response += "poke: I dare you to \n"
-  response += "salute: What you should do everyday. \n"
-  response += "hungry: coming soon... \n"
-  response += "givePoints @<username>: coming soon... \n"
-  response += "giveHighFive @<username>: coming soon... \n"
-  response += "quit: coming soon... \n"
-  response += " ```\n"
+  res += "Useful Commands: \n"
+  res += "```help: show commands \n"
+  res += "schedule: show daily schedule \n"
+  res += "poke: I dare you to \n"
+  res += "leaderboard: show leaderboard \n"
+  res += "salute: What you should do everyday. \n"
+  res += "rollcall: make sure everyone is present \n"
+  res += "createpoll <question>?: poll the entire team! \n"
+  res += "random: poll the team with a random question! \n"
+  res += "challenge: challenge your teammates (coming soon...) \n"
+  res += "hungry: order food (coming soon...) \n"
+  res += "givePoints @<username>: give points to teammates (coming soon...) \n"
+  res += "giveHighFive @<username>: high five your teammate(coming soon...) \n"
+  res += "quit: end conversation (coming soon...) \n"
+  res += " ```\n"
 
-  channel.send(response);
+  channel.send(res);
 } //showSchedule
 
 
@@ -488,6 +494,18 @@ function parseCommand (msg){
 } //parseCommand
 
 
+function pointMinus(user){
+  console.log('test', user)
+  /** add user to db if not exist */
+  var savedUser = db.users.findOrCreate(user.id);
+  savedUser.score--; 
+}
+
+function pointPlus(user){
+  /** add user to db if not exist */
+  var savedUser = db.users.findOrCreate(user.id);
+  savedUser.score++; 
+}
 
 
 function updateScore(user, reason, channel){
