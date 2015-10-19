@@ -78,24 +78,48 @@ module.exports = function(token){
         
         if(command){
           var tag = command.tag; 
+          var data = command.data; 
 
-          if(tag === 'rollcall'){
+          if(tag === 'rollcall'){ //conversation
             helpers.start.rollcall(channel, bot, onlineUsers);
 
-          }else if(tag === 'poll'){
-            helpers.start.poll(user, channel, bot);          
+          }else if(tag === 'poll'){ //conversation
+            helpers.start.poll(user, channel, bot, data);          
 
-          }else if(tag === 'play'){
+          }else if(tag === 'pollIncomplete'){ //error
+            helpers.start.pollIncomplete(channel);          
+
+          }else if(tag === 'test'){ //conversation
 
 
-          }else if(tag === 'poke'){
+          }else if(tag === 'share'){ //conversation
+            // helpers.show.about(channel);          
+
+
+          }else if(tag === 'about'){ //show
+            helpers.show.about(channel);          
+
+
+          }else if(tag === 'schedule'){ //show
+            helpers.show.schedule(channel);          
+
+
+          }else if(tag === 'leaderboard'){ //show
+            helpers.show.leaderBoard(channel);          
+
+
+          }else if(tag === 'help'){ //show
+            helpers.show.help(channel);          
+
+
+          }else if(tag === 'poke'){ //show. random res.
             channel.send('<@' + user.id + '> '+script.res.poke[ Math.floor( Math.random()*script.res.poke.length ) ] );
 
-          }else if(tag === 'review'){
+          }else if(tag === 'review'){ //show
 
 
-          }else if(tag === 'salute'){  
-            channel.send('<@' + user.id + '> at ease soldier ;-)');
+          }else if(tag === 'salute'){ //show: random res.
+            channel.send('<@' + user.id + '> '+script.res.salute[ Math.floor( Math.random()*script.res.salute.length ) ] );
 
           } //switch(tag)         
         } //if(command)
@@ -105,7 +129,7 @@ module.exports = function(token){
       ///////////////////
       }else{ // conversing
         var topic = bot.state.memory.temp.topic; 
-
+        console.log('test topic='+topic);
         if(topic ==='rollcall'){ 
           helpers.during.rollcall(msg, channel, user, bot, onlineUsers);
         
@@ -158,20 +182,17 @@ module.exports = function(token){
 
   /**
    * start a conversation by updating temporary memory
-   * @param  {sting} 'topic' conversation topic
    * @param  {object} context other context to add to conversation
    */
-  this.startConversation = function(topic, context){
+  this.startConversation = function(context){
     // bot.state.conversation = false;
     bot.state.conversing = true;
-    bot.state.memory.temp = {
-      topic:topic
-    }; //reset temporary memory
-
     for(var key in context){ // map all context tuples to temp memory
-      bot.state.memory.temp.key = context.key; 
+      bot.state.memory.temp[key] = context[key]; 
     } //for
   };
+
+  console.log('memory.temp=', bot.state.memory.temp)
 
   this.endConversation = function(){
     bot.state.conversing = false;

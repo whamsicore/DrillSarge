@@ -10,7 +10,6 @@ angular.module('slackBotApp.homepage', [])
       var slackChannelName = $scope.slackChannelName;
       var slackAPIKey = $scope.slackAPIKey;
       if(slackChannelName && slackAPIKey) {
-        $state.go('confirm'); //go to confirm screen
 
         return $http({
           method: 'POST',
@@ -18,6 +17,7 @@ angular.module('slackBotApp.homepage', [])
           data: {slackChannelName: slackChannelName, slackAPIKey: slackAPIKey}
         })
         .then(function (resp) {
+          $state.go('confirm'); //go to confirm screen
 
           console.log('Successfully saved to database')
         }, function(err) {

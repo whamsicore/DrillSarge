@@ -7,6 +7,13 @@ module.exports = {
   start: { // beginning a conversation
     rollcall: startRollCall,
     poll: startPoll,
+    pollIncomplete: startPollIncomplete,
+  },
+  show: {
+    help: showHelp,
+    schedule: showSchedule,
+    leaderBoard: showLeaderBoard,
+    about: showAbout,
   },
   during:{ // when conversation has started already
     rollcall: duringRollCall,
@@ -18,37 +25,18 @@ module.exports = {
   }
 }
 
-/**
- * func: Process the command ('yessir', 'poll', 'play', 'review')
- * @param  {string} msg message sent by user
- * @return {string}     return the name of the 'command'
- */
-function parseCommand (msg){
-  console.log('inside parseCommand msg='+msg);
-  /** single word commands */
-  for(var tag in commands){
-    var regex = commands[tag];
-    // console.log('regex='+regex);
-    
-    // console.log('match=',match);
-    if(match = msg.match(regex)){
-      return {
-        tag: tag, 
-        data: match
-      }
-    } //if
-  } //for 
-
-  return null; // if there are no matches
-
-} //parseCommand
 
 
-
+////////////////////////
+// START CONVERSATION //
+////////////////////////
 
 function startRollCall (channel, bot, onlineUsers){
   // var topic = bot.state.memory.temp.topic = 'rollcall';
-  bot.startConversation('rollcall');
+  bot.startConversation({
+    topic:'rollcall',
+    usersWhoAnswered:[],
+  });
 
   channel.send("Everybody say yessir!");
   
@@ -56,20 +44,24 @@ function startRollCall (channel, bot, onlineUsers){
     if(bot.state.memory.temp.topic==='rollcall'){
       /** Chastise users who have not answered */
       var response = "Alright, time's up! \n";
+      var noResponseCount = 0; 
 
       for(var key in onlineUsers){
         var user = onlineUsers[key];
         var memory = bot.state.memory.temp.usersWhoAnswered;
         if(memory.indexOf(user.id) === -1){ //user has not answered
           // do nothing?
-          response += "<@"+ user.id +">, "
+          response += "<@"+ user.id +">, ";
+          noResponseCount++
         }else{
-          // response += "<@"+ user.id +"> Good! (point+1). \n"
+      
         }
 
       } //for
       
-      response += "are you deaf? I got my eyes on YOU!"
+      response += "are ";
+      resposne += noResponseCount>1 ? "y'all": "you";
+      response += " deaf? I got my eyes on YOUSE!"
       
       channel.send(response);
       bot.endConversation();
@@ -80,9 +72,16 @@ function startRollCall (channel, bot, onlineUsers){
 } //startRollCall
 
 
-
-function startPoll (user, channel, bot){
-  bot.startConversation('poll', {
+/**
+ * Begin poll by getting question and options. Then proceed to ask the question and get response from everyone on the team
+ * @param  {object} user    the poll creator
+ * @param  {object} channel slack channel object
+ * @param  {object} bot     sarge instance
+ * @param  {object} data    .match results recovered from parseCommand()
+ */
+function startPoll (user, channel, bot, data){
+  bot.startConversation({
+    topic: 'poll',
     creator_id: user.id, 
     waiting: true
   }); //topic='poll'
@@ -97,18 +96,28 @@ function startPoll (user, channel, bot){
   }, 5000); //note: change to 10 seconds once complete
 } //startPoll
 
+function startPollIncomplete(channel){
+  var response = '';
+  response += "Son, if you want me create a poll, you gotta provide a question. \n"
+  response += ">Follow the format `poll <question>?`"
+  channel.send(response);
+}
 
 
 
 
 
+/////////////////////////
+// DURING CONVERSATION //
+/////////////////////////
 
 function duringRollCall (msg, channel, user, bot, onlineUsers){
   var memory = bot.state.memory;
 
   if(msg==='yessir'){
+    console.log('yessir testing')
     /** @type {array} array of answered user ids */
-    var answeredList = memory.temp.usersWhoAnswered = memory.temp.usersWhoAnswered || [];
+    var answeredList = memory.temp.usersWhoAnswered;
     
     if(answeredList.indexOf(user.id)===-1){ //user has not answered before
       
@@ -157,6 +166,107 @@ function duringPoll (user, channel, bot){
 
 
 
+////////////////////
+// SHOW SOMETHING //
+////////////////////
+
+
+function showSchedule (channel){
+  var response = '';
+  response += ">>>Daily Schedule: \n"
+  response += "```9 o'clock: Meet in #general for daily sharing \n"
+  response += "11 a.m.: Test your knowledge of teammates and earn points \n"
+  response += "1 p.m.: Test your knowledge of teammates and earn points \n"
+  response += "3 p.m.: Test your knowledge of teammates and earn points \n"
+  response += "4:30 p.m.: Daily reflection ```\n"
+  channel.send(response);
+} //showSchedule
+
+
+function showAbout (channel){
+  var response = '';
+  response += ">>> My name is Sarge. \n";
+  response += "• I fought in wars you never even heard of... \n";
+  response += "• I've got over 30 years of experience in LEADERSHIP. \n";
+  response += "• My job here is to help this team become a single unit. ";
+  response += " To do so, I'm gonna host daily sharing sessions between y'all. ";
+  response += "Then, throughout the day I'm gonna test you guys on just how much you know about your team. ";
+  response += "At the end of everyday I'll announce a winner. That could be you...";
+  
+  channel.send(response);
+} //showSchedule
+
+
+
+function showLeaderBoard (channel, onlineUsers){
+  var response = '';
+  for(var key in onlineUsers){
+    var user = onlineUsers[key];
+
+
+
+  }
+
+
+} //showSchedule
+
+
+
+function showHelp (channel){
+  var response = '';
+
+  response += ">Useful Commands: \n"
+  response += "```help: show commands \n"
+  response += "schedule: show daily schedule \n"
+  response += "rollcall: make sure everyone is present \n"
+  response += "poll <question>?: coming soon... \n"
+  response += "leaderboard: show leaderboard \n"
+  response += "test: test your team on interpersonal knowledge \n"
+  response += "poke: I dare you to \n"
+  response += "salute: What you should do everyday. \n"
+  response += "hungry: coming soon... \n"
+  response += "givePoints @<username>: coming soon... \n"
+  response += "giveHighFive @<username>: coming soon... \n"
+  response += "schedule: show daily schedule"
+  response += " ```\n"
+
+  channel.send(response);
+} //showSchedule
+
+
+
+
+///////////
+// OTHER //
+///////////
+
+
+/**
+ * func: Process the command ('yessir', 'poll', 'play', 'review')
+ * @param  {string} msg message sent by user
+ * @return {string}     return the name of the 'command'
+ */
+function parseCommand (msg){
+  /** single word commands */
+  for(var tag in commands){
+    var regex = commands[tag];
+    // console.log('regex='+regex);
+    
+    // console.log('match=',match);
+    if(match = msg.match(regex)){
+      return {
+        tag: tag, 
+        data: match
+      }
+    } //if
+  } //for 
+  console.log('no command found')
+  return null; // if there are no matches
+
+} //parseCommand
+
+
+
 
 function updateScore(user, reason, channel){
   var change = 0; 
@@ -192,23 +302,7 @@ function updateScore(user, reason, channel){
 
 } //updateScore
 
-// function processAnswer (msg){
-//   var response = 'Hey there <@' + user.id + '>';
-//   channel.send(response);
 
-//   /** single word commands */
-//   var regex = new RegExp("<@" + botId + ">:\\s(\\w+)", "i");
-//   var match = message.match(regex);  
-  
-//   if(match){
-//     var command = match[1];
-//     console.log("this is a command, "+command)
-
-//     if(command==='yessir'){
-//       console.log('exercise begin!');
-//     }
-//   } //if    
-// } //processAnswer
 
 /**
  * func: Return a channel from slack object based on name
@@ -228,6 +322,9 @@ function findChannelByName(name, client){
 
   return null; //no match found 
 } //findChannelByName
+
+
+
 
 /**
  * Find all the online users (human) in the channel
