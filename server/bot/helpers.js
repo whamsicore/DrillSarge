@@ -441,7 +441,7 @@ function showHelp (channel){
   response += "```help: show commands \n"
   response += "schedule: show daily schedule \n"
   response += "rollcall: make sure everyone is present \n"
-  response += "poll <question>?: poll the entire team! \n"
+  response += "createpoll <question>?: poll the entire team! \n"
   response += "random: poll the team with a random question! \n"
   response += "leaderboard: show leaderboard \n"
   response += "test: test your team on interpersonal knowledge \n"
