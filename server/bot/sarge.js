@@ -6,6 +6,9 @@ var cron = require('node-schedule');
 
 var helpers = require('./helpers');
 var db = require("../db/fakeDb.js");
+var script = require('./script');
+
+
 
 var autoReconnect = true, // Automatically reconnect after an error response from Slack.
     autoMark = true; // Automatically mark each message as read after it is processed.
@@ -26,15 +29,7 @@ module.exports = function(token){
   }
 
   var bot = this; 
-  // yessir: ends when every user types yessir, or after 10 seconds 
-
-  // this.conversation = {
-  //   isConversing:false, // are we talkin yet?
-  //   topic:'', // options: 'yessir', 'poll', 'trivia'
-  //   target:'', // user_id. User being spoken to
-  //   waiting: false //Bool. for response
-  // } // conversation
-
+  
   this.memory = {
   } //memory
 
@@ -79,22 +74,31 @@ module.exports = function(token){
       ////////////////////
 
       if(!conversing){
-        var command = helpers.parse.command(msg, client);
+        var command = helpers.parse(msg);
+        
+        if(command){
+          var tag = command.tag; 
 
-        if(command === 'yessir'){
-          helpers.start.yessir(channel, bot, onlineUsers);
+          if(tag === 'rollcall'){
+            helpers.start.rollcall(channel, bot, onlineUsers);
 
-        }else if(command === 'poll'){
-          helpers.start.poll(user, channel, bot);          
+          }else if(tag === 'poll'){
+            helpers.start.poll(user, channel, bot);          
 
-        }else if(command === 'game'){
+          }else if(tag === 'play'){
 
 
+          }else if(tag === 'poke'){
+            channel.send('<@' + user.id + '> '+script.res.poke[ Math.floor( Math.random()*script.res.poke.length ) ] );
 
-        }else if(command === 'salute'){  
-          channel.send('<@' + user.id + '> at ease soldier ;-)');
+          }else if(tag === 'review'){
 
-        }
+
+          }else if(tag === 'salute'){  
+            channel.send('<@' + user.id + '> at ease soldier ;-)');
+
+          } //switch(tag)         
+        } //if(command)
 
       ///////////////////
       // TAKE RESPONSE //
@@ -102,8 +106,8 @@ module.exports = function(token){
       }else{ // conversing
         var topic = bot.state.memory.temp.topic; 
 
-        if(topic ==='yessir'){ 
-          helpers.during.yessir(msg, channel, user, bot, onlineUsers);
+        if(topic ==='rollcall'){ 
+          helpers.during.rollcall(msg, channel, user, bot, onlineUsers);
         
         }else if(topic==='poll'){
           helpers.during.poll(msg, channel, user, bot);
@@ -129,7 +133,7 @@ module.exports = function(token){
     //   var command = match[1];
     //   console.log("this is a command, "+command)
 
-    //   if(command==='yessir'){
+    //   if(command==='rollcall'){
     //     console.log('exercise begin!');
     //   }
     // } //if
@@ -163,7 +167,7 @@ module.exports = function(token){
     bot.state.memory.temp = {
       topic:topic
     }; //reset temporary memory
-    
+
     for(var key in context){ // map all context tuples to temp memory
       bot.state.memory.temp.key = context.key; 
     } //for

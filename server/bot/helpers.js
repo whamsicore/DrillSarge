@@ -1,17 +1,15 @@
 /** helper bot functions */
 var db = require("../db/fakeDb.js");
+var commands = require("./commands.js")
 
 module.exports = {
-  parse:{
-    command: parseCommand, 
-    option: parseOption,
-  },
+  parse: parseCommand,
   start: { // beginning a conversation
-    yessir: startYessir,
+    rollcall: startRollCall,
     poll: startPoll,
   },
   during:{ // when conversation has started already
-    yessir: duringYessir,
+    rollcall: duringRollCall,
     poll: duringPoll,
   }, 
   slack:{
@@ -21,47 +19,41 @@ module.exports = {
 }
 
 /**
- * func: Process the command ('yessir', 'ask', 'play', 'review')
+ * func: Process the command ('yessir', 'poll', 'play', 'review')
  * @param  {string} msg message sent by user
- * @return {string}     the topic of the new conversation. Null = no conversation
+ * @return {string}     return the name of the 'command'
  */
-function parseCommand (msg, client){
-  
+function parseCommand (msg){
+  console.log('inside parseCommand msg='+msg);
   /** single word commands */
-  var regex = new RegExp("<@" + client.self.id + ">:\\s(\\w+)", "i");
-  var match = msg.match(regex);  
-  
-  if(match){ //if there is a command
-    return match[1];
-  }else{
-    return null;
-  } //if    
+  for(var tag in commands){
+    var regex = commands[tag];
+    // console.log('regex='+regex);
+    
+    // console.log('match=',match);
+    if(match = msg.match(regex)){
+      return {
+        tag: tag, 
+        data: match
+      }
+    } //if
+  } //for 
 
-} //parseCommand
-
-function parseOption (msg, client){
-  
-  /** single word commands */
-  var regex = new RegExp("<@" + client.self.id + ">:\\s(\\w+)(.+)", "i");
-  var match = msg.match(regex);  
-  if(match){ //if there is a command
-    return match[2];
-  }else{
-    return null;
-  } //if    
+  return null; // if there are no matches
 
 } //parseCommand
 
 
 
-function startYessir (channel, bot, onlineUsers){
-  // var topic = bot.state.memory.temp.topic = 'yessir';
-  bot.startConversation('yessir');
+
+function startRollCall (channel, bot, onlineUsers){
+  // var topic = bot.state.memory.temp.topic = 'rollcall';
+  bot.startConversation('rollcall');
 
   channel.send("Everybody say yessir!");
   
   setTimeout(function(){
-    if(bot.state.memory.temp.topic==='yessir'){
+    if(bot.state.memory.temp.topic==='rollcall'){
       /** Chastise users who have not answered */
       var response = "Alright, time's up! \n";
 
@@ -85,7 +77,7 @@ function startYessir (channel, bot, onlineUsers){
     }
 
   }, 5000);
-} //startYessir
+} //startRollCall
 
 
 
@@ -111,11 +103,10 @@ function startPoll (user, channel, bot){
 
 
 
-function duringYessir (msg, channel, user, bot, onlineUsers){
+function duringRollCall (msg, channel, user, bot, onlineUsers){
   var memory = bot.state.memory;
 
   if(msg==='yessir'){
-    console.log('inside of yessir');
     /** @type {array} array of answered user ids */
     var answeredList = memory.temp.usersWhoAnswered = memory.temp.usersWhoAnswered || [];
     
@@ -131,14 +122,17 @@ function duringYessir (msg, channel, user, bot, onlineUsers){
 
       /** All users have answered */
       if(answeredList.length===onlineUsers.length){ 
+      
         channel.send("Good job guys, everyone gets extra points.");
+      
         for(var key in onlineUsers){
           var user = onlineUsers[key];
           updateScore(user, 'extra', channel);
         }
+
         bot.endConversation()
-      }
-    } //if
+      } //if(finished)
+    } //if(new response)
   }else{ //interupts are reprimanded
     updateScore(user, "don't interrupt", channel);
   } //if
@@ -192,8 +186,8 @@ function updateScore(user, reason, channel){
   /** output  */
   if(change>0){
     channel.send('<@'+user.id+'> '+ change +'points for '+ reason +' ('+db.users[user.id].points+' total)');
-  }else{
-    channel.send('<@'+user.id+'> '+ Math.absolute(change)+' points for '+ reason +' ('+db.users[user.id].points+' total)');
+  }else if(change<0){
+    channel.send('<@'+user.id+'> '+ Math.abs(change)+' points for '+ reason +' ('+db.users[user.id].points+' total)');
   }
 
 } //updateScore
