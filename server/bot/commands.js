@@ -1,7 +1,7 @@
 /** tag - regex pairs. tag is the name of the command, regex is the regex used to trigger it */
 
 module.exports = {
-  'createpoll': new RegExp('^createpoll (\\w+)\\??$', 'i'), 
+  'createpoll': new RegExp('^createpoll (.+)$', 'i'), 
   'pollIncomplete': new RegExp('^createpoll$', 'i'), 
   'rollcall': new RegExp('^rollcall$', 'i'), 
   'help': new RegExp('^help$', 'i'), //show available commands
@@ -15,6 +15,7 @@ module.exports = {
   'hungry': new RegExp('^hungry$', 'i'), //yelp restaurants
   'givePoints': new RegExp('^give \\d points to (\\w)+$', 'i'), //give points to someone
   'giveHighFive': new RegExp('^give (\\w)+ a five!?$', 'i'), //give points to someone
+  'quit': new RegExp('^quit$', 'i'), //give points to someone
 }
 
 //for reference: 

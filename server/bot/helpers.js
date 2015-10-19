@@ -141,7 +141,7 @@ function startPoll (bot, channel, onlineUsers){
       channel.send(response);
     } //if(!conversing)
 
-  }, 3000);
+  }, 6000);
 
   //expect everyone to answer
 
@@ -330,17 +330,17 @@ function getPollDisplayString(poll){
   var res = '';
   var abc = ['A','B','C','D']; //indicates max and alphabetical mapping
 
-  res += '"'+poll.prompt + '"\n';
-  poll.options.forEach(function(opt, index){
-    res += "`"+abc[index] + ": "+ opt + "`\n"
-  });
+  res += '"'+poll.prompt + '" ';
   res += "(enter ";
-
   poll.options.forEach(function(opt, index){
     res += index!==0 ? '/' :'';
     res += abc[index];
   });
-  res += ")";
+  res += ") \n";
+
+  poll.options.forEach(function(opt, index){
+    res += "`"+abc[index] + ": "+ opt + "`\n"
+  });
 
   return res;
 } //getPollDisplayString
@@ -450,6 +450,7 @@ function showHelp (channel){
   response += "hungry: coming soon... \n"
   response += "givePoints @<username>: coming soon... \n"
   response += "giveHighFive @<username>: coming soon... \n"
+  response += "quit: coming soon... \n"
   response += " ```\n"
 
   channel.send(response);

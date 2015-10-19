@@ -69,9 +69,10 @@ module.exports = function(token){
       // TAKE COMMAND   //
       ////////////////////
       /** NOTE: only if there is no ongoing conversation */
+
       if(!conversing){
-        var command = helpers.parse(msg);
         
+        var command = helpers.parse(msg);
         if(command){
           var tag = command.tag; 
           var data = command.data; 
@@ -92,6 +93,9 @@ module.exports = function(token){
           }else if(tag === 'random'){ //conversation
             helpers.start.random(bot, channel, onlineUsers);
 
+
+          }else if(tag === 'quit'){ //conversation
+            bot.endConversation();
 
           }else if(tag === 'about'){ //show
             helpers.show.about(channel);          
@@ -126,6 +130,7 @@ module.exports = function(token){
       ///////////////////
       /** there is an ongoing conversation */
       }else{ // conversing
+
         var topic = bot.state.memory.temp.topic; 
 
         if(topic ==='rollcall'){ 
