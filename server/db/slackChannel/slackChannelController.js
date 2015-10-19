@@ -14,14 +14,16 @@ module.exports = {
       var slackAPIKey = req.body.slackAPIKey;
 
       validateSlack(slackAPIKey, function success (client){ // Looks for the slack channel api token in the database to see if it exists already
-          
-        /** activate bot */
-        var Sarge = require('../../bot/sarge.js');
-        var bot = new Sarge(client.token); //insert token 
+         
 
-        /** clear channel */
-        SlackChannels.remove({}, function(){
-          var slackChannelModel = new SlackChannels();
+        SlackChannels.findOne({slackAPIKey: slackAPIKey}, function(err, model) {
+
+          if(!model){
+            /** activate bot */
+            var Sarge = require('../../bot/sarge.js');
+            var bot = new Sarge(client.token); //insert token 
+
+            var slackChannelModel = new SlackChannels();
             // slackChannelModel.slackChannelName = slackChannelName;
             slackChannelModel.slackAPIKey = slackAPIKey;
             slackChannelModel.save(function(err) {
@@ -38,7 +40,15 @@ module.exports = {
 
             }); //save
 
-        });
+
+          }else{
+            var response = {error: 'Sarge is already there!'};
+            res.status(500).json(response);
+      
+          } //if it doesn't exist
+          
+
+        }); //slack.findone
 
         /** update database */
         // SlackChannels.findOne({slackAPIKey: slackAPIKey}, function(err, model) {

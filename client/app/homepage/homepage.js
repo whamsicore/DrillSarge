@@ -25,7 +25,8 @@ angular.module('slackBotApp.homepage', [])
           console.log('Successfully saved to database. resp=', resp)
           $rootScope.slackDomain = resp.data.slackDomain;
         }, function(err) {
-          alert("Something is wrong with your API token...");
+
+          alert("Something is wrong with your API token... ("+err.data.error+")");
           // console.log('Error:', err);
           // console.log('Cannot save to database')
         });
