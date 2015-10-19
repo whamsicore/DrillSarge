@@ -1,7 +1,4 @@
 var testData = {
-  
-
-
   questions: [
     {
       prompt: "What do you like more?",
@@ -73,3 +70,5 @@ var testData = {
 
 
 } // testData
+
+module.exports = testData;

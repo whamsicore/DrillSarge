@@ -4,11 +4,14 @@
       <span class='homepage_title_sarge'>Sarge</span>
     </div>
     <div class='homepage_slack_input_container'>
-        <!--<p>
-          <input class="name-input" ng-model="slackChannelName" placeholder='Slack Channel Name' autofocus></input>
-        </p>-->
+        <span class='confirm_page_text_name'>
+          <h6> A bot designed for Able, for helping teams grow. </h6>
+          <p>1. Go to 'Configure Integrations' to create new Slackbot </p>
+          <p>2. Call it Sarge, and use <a href="https://bit.ly/1RRdF6j">this</a> as the profile </p> 
+          <p>3. Copy and paste the API token below. </p> 
+         </span>
         <p>
-          <input class="homepage_slackapi_input" ng-model="slackAPIKey" placeholder='API Key' autofocus></input>
+          <input class="homepage_slackapi_input" ng-model="slackAPIKey" placeholder='API Token' autofocus></input>
         </p>
         <md-button class="md-raised homepage_slack_input_submit" ng-click="saveSlackInfo()">I'm ready for Sarge</md-button>
     </div>

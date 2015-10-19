@@ -6,9 +6,9 @@ function userTable (){
   data = {}; // contains all user objects, hashed to user_id
 
   this.findOrCreate = function(user_id){
-    if(data[user_id]){
+    if(!data[user_id]){
       data[user_id] = {
-        points:0
+        score: Math.floor(Math.random()*50) //give random score to make things interesting
       }
     } //if
     

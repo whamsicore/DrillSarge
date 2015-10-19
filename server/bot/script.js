@@ -31,6 +31,16 @@ module.exports = {
       "Son, you are a beautiful human being. Never forget that.",
       "At ease, soldier.",
       "You look like you need a break...",
+    ], 
+    noResponse: [
+      "are you slow?",
+      "discipline! C'mon now!",
+      "are you deaf?",
+      "what's going on in that head of yours?",
+      "are you ok?",
+      "don't play dumb with me!",
+      "stop dillidallyin'!",
+      "quit jerkin' off!",
     ]
   }, 
   

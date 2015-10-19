@@ -1,22 +1,26 @@
 /** helper bot functions */
 var db = require("../db/customDb");
 var commands = require("./commands")
+var script = require("./script")
 
 module.exports = {
   parse: parseCommand,
   start: { // beginning a conversation
     rollcall: startRollCall,
-    poll: startPoll,
+    pollCreate: startPollCreate,
     pollIncomplete: startPollIncomplete,
+    random: startRandomPoll,
   },
   show: {
     help: showHelp,
     schedule: showSchedule,
     leaderBoard: showLeaderBoard,
     about: showAbout,
+    intro: showIntro,
   },
   during:{ // when conversation has started already
     rollcall: duringRollCall,
+    pollCreate: duringPollCreate,
     poll: duringPoll,
   }, 
   slack:{
@@ -38,63 +42,127 @@ function startRollCall (channel, bot, onlineUsers){
     usersWhoAnswered:[],
   });
 
-  channel.send("Everybody say yessir!");
+  channel.send("It's time for my favorite exercise, *Rollcall*. Say yessir to let me know you're here!");
+  var memory = bot.state.memory;
   
-  setTimeout(function(){
-    if(bot.state.memory.temp.topic==='rollcall'){
-      /** Chastise users who have not answered */
-      var response = "Alright, time's up! \n";
-      var noResponseCount = 0; 
 
-      for(var key in onlineUsers){
-        var user = onlineUsers[key];
-        var memory = bot.state.memory.temp.usersWhoAnswered;
-        if(memory.indexOf(user.id) === -1){ //user has not answered
-          // do nothing?
-          response += "<@"+ user.id +">, ";
-          noResponseCount++
-        }else{
-      
-        }
+  var reminder = setInterval(function(){
+    if(!bot.state.conversing){
+      clearInterval(reminder);
+    }else{
+      var answeredUserIds = memory.temp.usersWhoAnswered;
+      var unansweredList = getUnansweredUserIds(answeredUserIds, onlineUsers);
 
-      } //for
+      var response = '';
       
-      response += "are ";
-      resposne += noResponseCount>1 ? "y'all": "you";
-      response += " deaf? I got my eyes on YOUSE!"
-      
+      unansweredList.forEach(function(id){
+          response += "<@"+ id +">, ";
+      });
+      response += script.res.noResponse[ Math.floor( Math.random()*script.res.noResponse.length ) ] ;
+      response += " Say yessir! ";
+
       channel.send(response);
-      bot.endConversation();
+    } //if(!conversing)
 
-    }
-
-  }, 5000);
+  }, 3500);
 } //startRollCall
 
 
 /**
- * Begin poll by getting question and options. Then proceed to ask the question and get response from everyone on the team
+ * Begin poll by creating a poll: get prompt and options. Then proceed to ask the question and get response from everyone on the team
  * @param  {object} user    the poll creator
  * @param  {object} channel slack channel object
  * @param  {object} bot     sarge instance
  * @param  {object} data    .match results recovered from parseCommand()
  */
-function startPoll (user, channel, bot, data){
+function startPollCreate (bot, channel, data, user){
   bot.startConversation({
-    topic: 'poll',
-    creator_id: user.id, 
-    waiting: true
+    topic: 'pollCreate',
+    creator_id: user.id,
+    poll: {
+      prompt: data[1], // prompt was saved with msg.match
+      options: [] // empty
+    }
   }); //topic='poll'
+
+  var options = [];
+  var res = '';
+
+  res += "So you want to ask \""+bot.state.memory.temp.poll.prompt+"\"? \n";
+  res += getPollOptionStr(options)
   
-  channel.send("Everybody say yessir!");
-  
-  setTimeout(function(){
-    if(bot.state.memory.temp.waiting){
-      channel.send("Get back to me when you've made up your mind, son!");
-      bot.endConversation();
-    } //if
-  }, 5000); //note: change to 10 seconds once complete
+  channel.send(res);
+  // // channel.send("Everybody say yessir!");
+  // setTimeout(function(){
+  //   if(bot.state.memory.temp.waiting){
+  //     channel.send("Get back to me when you've made up your mind, son!");
+  //     bot.endConversation();
+  //   } //if
+  // }, 5000); //note: change to 10 seconds once complete
+} //startPollCreate
+
+// send out the poll
+function startPoll (bot, channel, onlineUsers){
+  //first display the poll to channel
+  bot.updateMemory({
+    topic: 'poll', 
+    usersWhoAnswered: [],  
+    answers: [ //format = {user_id, option_id}
+
+    ]
+  });
+
+  var memory = bot.state.memory.temp;
+  var res = '';
+
+  res += "It's time for a poll guys! \n";
+  res += "Question: " + getPollDisplayString(memory.poll);
+  channel.send(res);
+
+  var reminder = setInterval(function(){
+    if(!bot.state.conversing){
+    
+      clearInterval(reminder);
+
+    }else{
+
+      var answeredUserIds = memory.usersWhoAnswered;
+      var unansweredList = getUnansweredUserIds(answeredUserIds, onlineUsers);
+
+      var response = '';
+      
+      unansweredList.forEach(function(id){
+          response += "<@"+ id +">, ";
+      });
+      response += script.res.noResponse[ Math.floor( Math.random()*script.res.noResponse.length ) ] ;
+      response += " Help us finish the poll! \n";
+      response += getPollDisplayString(memory.poll);
+
+      channel.send(response);
+    } //if(!conversing)
+
+  }, 3000);
+
+  //expect everyone to answer
+
+
 } //startPoll
+
+
+
+function startRandomPoll (bot, channel, onlineUsers){
+  var testData = require('../db/testData');
+  var questions = testData.questions;
+
+  bot.startConversation({
+    poll: questions[Math.floor(Math.random() * questions.length)]
+  });
+
+  console.log('random poll = ', bot.state.memory.temp.poll);
+
+  startPoll (bot, channel, onlineUsers);
+  // startPoll (bot, channel, onlineUsers, onlineUsers, user);
+}
 
 function startPollIncomplete(channel){
   var response = '';
@@ -115,31 +183,29 @@ function duringRollCall (msg, channel, user, bot, onlineUsers){
   var memory = bot.state.memory;
 
   if(msg==='yessir'){
-    console.log('yessir testing')
     /** @type {array} array of answered user ids */
-    var answeredList = memory.temp.usersWhoAnswered;
+    var answeredUserIds = memory.temp.usersWhoAnswered;
     
-    if(answeredList.indexOf(user.id)===-1){ //user has not answered before
-      
-      if(answeredList.length===0){ 
-        updateScore(user, 'answering first', channel);
-      }else{
-        updateScore(user, 'answering', channel);
-      }
+    if(answeredUserIds.indexOf(user.id)===-1){ //user has not answered before
 
-      answeredList.push(user.id);
+      updateScore(user, 'answering', channel);
+
+      answeredUserIds.push(user.id);
 
       /** All users have answered */
-      if(answeredList.length===onlineUsers.length){ 
+      if(answeredUserIds.length===onlineUsers.length){ 
       
-        channel.send("Good job guys, everyone gets extra points.");
-      
-        for(var key in onlineUsers){
-          var user = onlineUsers[key];
-          updateScore(user, 'extra', channel);
-        }
-
+        channel.send("Good job guys! Now that that's over, let me remind you guys about what I do...");
         bot.endConversation()
+        
+        setTimeout(function(){
+          showHelp(channel);
+        }, 1000); 
+        // for(var key in onlineUsers){
+        //   var user = onlineUsers[key];
+        //   updateScore(user, 'extra', channel);
+        // }
+
       } //if(finished)
     } //if(new response)
   }else{ //interupts are reprimanded
@@ -150,15 +216,104 @@ function duringRollCall (msg, channel, user, bot, onlineUsers){
 
 
 
-function duringPoll (user, channel, bot){
+//Finish when user says I'm done or when four options have been filled
+// - also user may cancel
+// -   
+function duringPollCreate (bot, channel, msg, onlineUsers, user){
   var creator_id = bot.state.memory.temp.creator_id;
+  var options = bot.state.memory.temp.poll.options;
+
 
   if( user.id === creator_id ){
-    // channel.send();
-    console.log("from poll creator");
+    if(msg.match( /^i\'m done$/i ) ){
+      // console.log('msg', msg);  
+      // console.log('options', options);  
+      
+      // channel.send("poll is finished")
+      if(options.length>=2){
+        
+        startPoll (bot, channel, onlineUsers);
 
-  }
+      }else{ //warn and ask again
+        var res = '';
+        res += "You must enter at least 2 options! \n";
+        res += getPollOptionStr(options);
+        channel.send(res);
 
+      } //if
+      
+    }else if(msg === 'cancel'){
+      channel.send("Sure thing! (Poll Cancelled)")
+      bot.endConversation();
+      
+    }else{ //save new option
+      console.log('go to the next step')
+      var res = '';
+
+      options.push(msg); //push to option
+
+      if(options.length===4){ //maximum options reached
+        //todo: save and startPoll()
+        startPoll (bot, channel, onlineUsers)
+        res += "Complete! Now let's find out what poeple think.";
+      
+      }else{
+        res += getPollOptionStr(options);
+
+      } //if(poll completed) 
+
+      channel.send(res);
+      //send prompt for next option
+
+    } //var abc = ['A','B','C','D']; //indicates max and alphabetical mapping
+
+  } //if(valid user)
+
+
+} //duringPollCreate
+
+
+//take user answers
+function duringPoll(bot, channel, msg, onlineUsers, user){
+  var memory = bot.state.memory.temp;
+  var options = memory.poll.options;
+  var abc = ['A', 'B', 'C', 'D'];
+
+  if(abc.indexOf(msg) !== -1){ //blah
+    /** @type {array} array of answered user ids */
+    var answeredUserIds = memory.usersWhoAnswered;
+    
+    if(answeredUserIds.indexOf(user.id)===-1){ //user has not answered before
+
+      updateScore(user, 'answering', channel);
+
+      answeredUserIds.push(user.id);
+      memory.answers.push({
+        user_id: user.id, 
+        option_id: abc.indexOf(msg)
+      });
+
+      /** All users have answered */
+      if(answeredUserIds.length===onlineUsers.length){ 
+        var res = '';
+        res += "Good job guys! Here are the results... \n";
+        res += getPollResultsDisplayString(bot, onlineUsers);
+        
+        channel.send(res);
+
+        bot.endConversation()
+        
+        // for(var key in onlineUsers){
+        //   var user = onlineUsers[key];
+        //   updateScore(user, 'extra', channel);
+        // }
+
+      } //if(finished)
+    } //if(new response)
+  }else{ //interupts are reprimanded
+    
+    // updateScore(user, "don't interrupt", channel);
+  } //if
 
 } //duringPoll
 
@@ -171,10 +326,69 @@ function duringPoll (user, channel, bot){
 ////////////////////
 
 
+function getPollDisplayString(poll){
+  var res = '';
+  var abc = ['A','B','C','D']; //indicates max and alphabetical mapping
+
+  res += '"'+poll.prompt + '"\n';
+  poll.options.forEach(function(opt, index){
+    res += "`"+abc[index] + ": "+ opt + "`\n"
+  });
+  res += "(enter ";
+
+  poll.options.forEach(function(opt, index){
+    res += index!==0 ? '/' :'';
+    res += abc[index];
+  });
+  res += ")";
+
+  return res;
+} //getPollDisplayString
+
+
+function getPollResultsDisplayString(bot, onlineUsers){
+  var memory = bot.state.memory.temp;
+  var options = memory.poll.options;
+  var answers = memory.answers;
+
+  var res = '';
+    
+  // how many people answered
+  
+  options.forEach(function(opt, index){
+    var count = 0;
+    answers.forEach(function(ans){
+      if(ans.option_id===index){
+        count++
+      } //if
+    });
+
+    res += "`" + count + " number of people chose " + opt + "` \n"; 
+
+  }); //options.forEach
+  res += "A total of "+onlineUsers.length+" members(s) responded. \n";
+
+  return res;
+} //getPollResultsDisplayString
+
+
+function getPollOptionStr (options){
+  var res = '';
+  var abc = ['A','B','C','D']; //indicates max and alphabetical mapping
+
+  res += "What would you like me to put for option "+abc[options.length]+"? \n";
+  res += "(type `i'm done` to end, or `cancel` to cancel)"
+
+  return res;
+
+} //getPollOptionStr
+
+
+
 function showSchedule (channel){
   var response = '';
   response += ">>>Daily Schedule: \n"
-  response += "```10 a.m.: Meet in #general for daily sharing \n"
+  response += "```10 a.m.: Meet in #general for sharing exercise \n"
   response += "11 a.m.: Test your knowledge of teammates and earn points \n"
   response += "1:30 p.m.: Test your knowledge of teammates and earn points \n"
   response += "3:30 p.m.: Test your knowledge of teammates and earn points \n"
@@ -185,29 +399,35 @@ function showSchedule (channel){
 
 function showAbout (channel){
   var response = '';
-  response += ">>> My name is Sarge. \n";
-  response += "• I fought in wars you never even heard of... \n";
-  response += "• I've got over 30 years of experience in LEADERSHIP. \n";
-  response += "• My job here is to help this team become a single unit. ";
-  response += " To do so, I'm gonna host daily sharing sessions between y'all. ";
-  response += "Then, throughout the day I'm gonna test you guys on just how much you know about your team. ";
-  response += "At the end of everyday I'll announce a winner. That could be you...";
-  
+  response += "```I fought in wars you never even heard of... \n";
+  response += "I've got over 30 years of experience in LEADERSHIP. \n";
+  response += "I reserve my soft spot only for kittens! \n";
+  response += "My job here is to help this team become a single unit. ```";
   channel.send(response);
+  
 } //showSchedule
 
-
+ 
+function showIntro (channel){
+  var response = '';
+  response += ">>> My name is Sarge. \n";
+  response += "My job here is to turn this raggity band of strangers into a living, breathing, battle unit! ";
+  response += "To do so, we're gonna do daily exercises to facilitate \"*teamwork*\". ";
+  channel.send(response);
+}
 
 function showLeaderBoard (channel, onlineUsers){
   var response = '';
   
   for(var key in onlineUsers){
-    var user = onlineUsers[key];
-    var score = db.us
-    response += "`<@"+user.id+" `\n"
+    var user_id = onlineUsers[key].id;
 
+    var user = db.users.findOrCreate(user_id);
+    response += "`<@"+user_id+"> has "+ user.score +" points. `\n"
 
-  }
+  } //for
+
+  channel.send(response);
 
 
 } //showSchedule
@@ -217,11 +437,12 @@ function showLeaderBoard (channel, onlineUsers){
 function showHelp (channel){
   var response = '';
 
-  response += ">Useful Commands: \n"
+  response += "Useful Commands: \n"
   response += "```help: show commands \n"
   response += "schedule: show daily schedule \n"
   response += "rollcall: make sure everyone is present \n"
-  response += "poll <question>?: coming soon... \n"
+  response += "poll <question>?: poll the entire team! \n"
+  response += "random: poll the team with a random question! \n"
   response += "leaderboard: show leaderboard \n"
   response += "test: test your team on interpersonal knowledge \n"
   response += "poke: I dare you to \n"
@@ -229,7 +450,6 @@ function showHelp (channel){
   response += "hungry: coming soon... \n"
   response += "givePoints @<username>: coming soon... \n"
   response += "giveHighFive @<username>: coming soon... \n"
-  response += "schedule: show daily schedule"
   response += " ```\n"
 
   channel.send(response);
@@ -254,7 +474,6 @@ function parseCommand (msg){
     var regex = commands[tag];
     // console.log('regex='+regex);
     
-    // console.log('match=',match);
     if(match = msg.match(regex)){
       return {
         tag: tag, 
@@ -287,7 +506,7 @@ function updateScore(user, reason, channel){
   } //if(reason)
 
   /** add user to db if not exist */
-  var User = db.user.findOrCreate(user.id);
+  var User = db.users.findOrCreate(user.id);
   
 
   /** update database */
@@ -344,5 +563,24 @@ function getOnlineUsersForChannel (channel, client) {
     
    }  
 };
+
+function getUnansweredUserIds(answeredUserIds, onlineUsers){
+  var res = [];
+
+  for(var key in onlineUsers){
+
+    var user = onlineUsers[key];
+    if(user){
+      if(answeredUserIds.indexOf( user.id ) === -1){ //not found
+        res.push(user.id);
+      } //if
+      
+    }else{
+      console.log('error @ getUnansweredUserIds')
+    }
+  } //for
+
+  return res;
+} //getUnansweredUserIds
 
 

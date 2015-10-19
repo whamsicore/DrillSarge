@@ -39,8 +39,16 @@ module.exports = function(token){
   /** Triggers when Slackbot is loaded  */
   client.on('open', function(){
     var channel = helpers.slack.findChannelByName('general', client); 
+    // var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
     
-    helpers.show.about(channel);
+    // helpers.show.intro(channel);
+
+    // setTimeout(function(){
+    //   helpers.start.rollcall(channel, bot, onlineUsers);
+
+    // }, 3000);
+    
+    channel.send('connected');
   }); 
 
 
@@ -51,7 +59,9 @@ module.exports = function(token){
     var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
     var user = client.getUserByID(data.user);
     var msg = data.text;
-    var conversing = bot.state.conversing;
+
+    var conversing = bot.state.conversing; 
+    var memory = bot.state.memory;
 
     if(user.id!==client.self.id){ // message comes from user, not bot
       
@@ -69,17 +79,18 @@ module.exports = function(token){
           if(tag === 'rollcall'){ //conversation
             helpers.start.rollcall(channel, bot, onlineUsers);
 
-          }else if(tag === 'poll'){ //conversation
-            helpers.start.poll(user, channel, bot, data);          
+          }else if(tag === 'pollCreate'){ //conversation
+            helpers.start.pollCreate(bot, channel, data, user);
 
           }else if(tag === 'pollIncomplete'){ //error
             helpers.start.pollIncomplete(channel);          
 
-          }else if(tag === 'test'){ //conversation
-
-
           }else if(tag === 'share'){ //conversation
             // helpers.show.about(channel);          
+
+
+          }else if(tag === 'random'){ //conversation
+            helpers.start.random(bot, channel, onlineUsers);
 
 
           }else if(tag === 'about'){ //show
@@ -91,7 +102,7 @@ module.exports = function(token){
 
 
           }else if(tag === 'leaderboard'){ //show
-            helpers.show.leaderBoard(channel);          
+            helpers.show.leaderBoard(channel, onlineUsers);          
 
 
           }else if(tag === 'help'){ //show
@@ -116,14 +127,15 @@ module.exports = function(token){
       /** there is an ongoing conversation */
       }else{ // conversing
         var topic = bot.state.memory.temp.topic; 
-        console.log('test topic='+topic);
+
         if(topic ==='rollcall'){ 
           helpers.during.rollcall(msg, channel, user, bot, onlineUsers);
         
-        }else if(topic==='poll'){
-          helpers.during.poll(msg, channel, user, bot);
+        }else if(topic==='pollCreate'){
+          helpers.during.pollCreate(bot, channel, msg, onlineUsers, user);
 
-        }else if(topic==='trivia'){
+        }else if(topic==='poll'){
+          helpers.during.poll(bot, channel, msg, onlineUsers, user);
 
         }else if(topic===''){
 
@@ -136,7 +148,7 @@ module.exports = function(token){
 
 
   client.on('error', function(err){
-      console.error("Error", err)
+      console.error("ClientError", err)
   });
 
 
@@ -149,24 +161,28 @@ module.exports = function(token){
 
   /** 10 a.m. Begin day with sharing */
   var j1 = cron.scheduleJob('* 10 * * *', function(){ //10 a.m.
-      
+      helpers.start.rollcall(channel, bot, onlineUsers);
+    
   });
   
   /** 3 tests during the day */
   var j2 = cron.scheduleJob('* 11 * * *', function(){ //11 a.m
-      
+      helpers.start.random(bot, channel, onlineUsers);
   });
 
   var j3 = cron.scheduleJob('30 13 * * *', function(){ //1:30 p.m.
+      helpers.start.random(bot, channel, onlineUsers);
       
   });
 
   var j4 = cron.scheduleJob('30 15 * * *', function(){ //3:30 p.m.
+      helpers.start.random(bot, channel, onlineUsers);
       
   });
 
   /** reflection, award ceremony */
   var j5 = cron.scheduleJob('30 16 * * *', function(){ //3:30 p.m.
+      helpers.start.leaderBoard(channel, onlineUsers);
       
   });
 
@@ -181,18 +197,24 @@ module.exports = function(token){
   this.startConversation = function(context){
     // bot.state.conversation = false;
     bot.state.conversing = true;
-    for(var key in context){ // map all context tuples to temp memory
-      bot.state.memory.temp[key] = context[key]; 
-    } //for
+    this.updateMemory(context);
   };
 
-  console.log('memory.temp=', bot.state.memory.temp)
 
   this.endConversation = function(){
     bot.state.conversing = false;
-    bot.state.memory.temp = {}; //reset temporary memory
+    this.clearMemory();
   };
 
+  this.updateMemory = function(input){
+    for(var key in input){ // map all input tuples to temp memory
+      bot.state.memory.temp[key] = input[key]; 
+    } //for
+  }
+
+  this.clearMemory = function(){
+    bot.state.memory.temp = {}; //reset temporary memory
+  }
   /////////////////
   // DAILY TASKS //
   /////////////////

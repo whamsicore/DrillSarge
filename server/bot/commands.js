@@ -1,10 +1,11 @@
 /** tag - regex pairs. tag is the name of the command, regex is the regex used to trigger it */
 
 module.exports = {
-  'poll': new RegExp('^poll (\w)+?$', 'i'), 
+  'pollCreate': new RegExp('^poll (\\w+)\\??$', 'i'), 
   'pollIncomplete': new RegExp('^poll$', 'i'), 
   'rollcall': new RegExp('^rollcall$', 'i'), 
   'help': new RegExp('^help$', 'i'), //show available commands
+  'random': new RegExp('^random$', 'i'), //show available commands
   'schedule': new RegExp('^schedule$', 'i'), //show schedule for trivia and games
   'about': new RegExp('^about$', 'i'), //show schedule for trivia and games
   'leaderboard': new RegExp('^leaderboard$', 'i'), //show everyones scores
