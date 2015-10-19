@@ -33,50 +33,6 @@ module.exports = {
       "You look like you need a break...",
     ]
   }, 
-  trivia: [
-   {
-    question: "What do you like more?",
-    options: [
-      'Star Wars', 'Star Trek', 'Niether'
-    ]
-   }, 
-   {
-    question: "What do you like more?",
-    options: [
-      'Blue', 'Red', 'Black', 'Orange', 'Yellow', 'Pink', 'Brown', 'Blue', 'Turquoise'
-    ]
-   }, 
-   {
-    question: "What do you prefer?",
-    options: [
-      'Walk on the beach', 'Hike in the mountains', 'Going to the mall', 'House party'
-    ]
-   }, 
-   {
-    question: "What do you prefer?",
-    options: [
-      'Beauty', 'Brains', 'Character', 'Kindness'
-    ]
-   }, 
-   {
-    question: "What do you prefer?",
-    options: [
-      'Intense work out?', 'Nice long walk?'
-    ]
-   }, 
-   {
-    question: "Best company?",
-    options: [
-      'Apple', 'Google', 'Facebook', 'Amazon', 'Able'
-    ]
-   },  
-   {
-    question: "Do you believe ghosts might be real?",
-    options: [
-      'Yes', 'No', "Don't care"
-    ]
-   }
-   
-  ]
+  
   
 }

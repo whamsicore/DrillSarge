@@ -5,7 +5,7 @@ var Slack = require('slack-client');
 var cron = require('node-schedule');
 
 var helpers = require('./helpers');
-var db = require("../db/fakeDb.js");
+var db = require("../db/customDb");
 var script = require('./script');
 
 

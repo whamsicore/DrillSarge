@@ -1,6 +1,6 @@
 /** helper bot functions */
-var db = require("../db/fakeDb.js");
-var commands = require("./commands.js")
+var db = require("../db/customDb");
+var commands = require("./commands")
 
 module.exports = {
   parse: parseCommand,
@@ -200,9 +200,11 @@ function showAbout (channel){
 
 function showLeaderBoard (channel, onlineUsers){
   var response = '';
+  
   for(var key in onlineUsers){
     var user = onlineUsers[key];
-
+    var score = db.us
+    response += "`<@"+user.id+" `\n"
 
 
   }
@@ -285,14 +287,11 @@ function updateScore(user, reason, channel){
   } //if(reason)
 
   /** add user to db if not exist */
-  if(!db.users[user.id]){
-    db.users[user.id] = {
-      points:0
-    }
-  }
+  var User = db.user.findOrCreate(user.id);
+  
 
   /** update database */
-  db.users[user.id].points += change; //update database
+  User.score += change; //update database
   /** output  */
   if(change>0){
     channel.send('<@'+user.id+'> '+ change +'points for '+ reason +' ('+db.users[user.id].points+' total)');
