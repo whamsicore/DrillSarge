@@ -236,6 +236,9 @@ module.exports = function(token){
 
 
   this.endConversation = function(){
+    if(bot.reminder){ //clear any active reminders
+      clearInterval(bot.reminder);
+    }
     bot.state.conversing = false;
     this.clearMemory();
   };
