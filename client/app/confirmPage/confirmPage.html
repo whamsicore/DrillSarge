@@ -1,9 +1,13 @@
 <div ng-controller="confirmPageCtrl" ng-app="slackBotApp.confirmPage">
   <div class='confirm_page_container'>
     <div class='confirm_page_text_container'>
-      <span class='confirm_page_text_name'>The API Key for #{{slackChannelName}} has been saved!</span>
+      <span class='confirm_page_text_name'>
+        <p>The API Key has been added to our database. </p>
+        <p>Sarge is expecting you. </p> 
+        <p>Don't be late!</p>
+       </span>
       <div>
-        <md-button class="md-raised confirm_page_navigate_to_home" ng-click="goToHomepage()">Add Sarge to another Slack Channel</md-button>
+        <md-button class="md-raised confirm_page_navigate_to_home" ng-click="goToHomepage()">Go to slack channel</md-button>
       </div>
     </div>
   </div>

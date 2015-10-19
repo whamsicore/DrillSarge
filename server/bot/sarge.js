@@ -15,7 +15,7 @@ module.exports = function(token){
   /** slack client connection variables */
   var autoReconnect = true, // Automatically reconnect after an error response from Slack.
       autoMark = true, // Automatically mark each message as read after it is processed.
-      slackToken = token || 'xoxb-12608710676-WToSXWoZrkJayDKbFRAs2JpL';
+      slackToken = token || 'xoxb-12608710676-WToSXWoZrkJayDKbFRAs2JpL'; //defaults to betabootcamp.slack.com
   /** @type {Slack} instantiate client connection */
   var client = new Slack(slackToken, autoReconnect, autoMark); //instantiate client connection
   

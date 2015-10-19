@@ -1,6 +1,7 @@
 var SlackChannels = require('./slackChannelModel');
 var Slack = require('slack-client');
 
+
 module.exports = {
 
   // Listens to post request from client to add slack channel to database.
@@ -12,29 +13,61 @@ module.exports = {
       // var slackChannelName = req.body.slackChannelName;
       var slackAPIKey = req.body.slackAPIKey;
 
-      validateSlack(slackAPIKey, function success (){ // Looks for the slack channel api token in the database to see if it exists already
-          SlackChannels.findOne({slackAPIKey: slackAPIKey}, function(err, model) {
-            
-            if(!model) { //model not found, create new one
-              var slackChannelModel = new SlackChannels();
-              // slackChannelModel.slackChannelName = slackChannelName;
-              slackChannelModel.slackAPIKey = slackAPIKey;
-              slackChannelModel.save(function(err) {
-                if(err) {
-                  var response = {error: 'Unable to add new slack channel and API key to database'};
-                  console.log(response.error);
-                  console.log('Error:', err);
-                  res.status(500).json(response);
-                } else {
-                  console.log('Successfully saved slack channel and API key to database');
-                  res.status(201).send();
-                }
-              }); //save
-            } //if(!model)
-          }); //find slackChannel
+      validateSlack(slackAPIKey, function success (client){ // Looks for the slack channel api token in the database to see if it exists already
+          
+        /** activate bot */
+        var Sarge = require('../../bot/sarge.js');
+        var bot = new Sarge(client.token); //insert token 
 
-      }, function error (){
-        console.log("Error when connecting with Slack: ", err)
+        /** clear channel */
+        SlackChannels.remove({}, function(){
+          var slackChannelModel = new SlackChannels();
+            // slackChannelModel.slackChannelName = slackChannelName;
+            slackChannelModel.slackAPIKey = slackAPIKey;
+            slackChannelModel.save(function(err) {
+              
+              if(err) {
+                var response = {error: 'Unable to add new slack channel and API key to database'};
+                res.status(500).json(response);
+              } else {
+
+                var response = {slackDomain: client.team.domain};
+                console.log('Successfully saved slack channel and API key to database');
+                res.status(201).json(response);
+              } //if
+
+            }); //save
+
+        });
+
+        /** update database */
+        // SlackChannels.findOne({slackAPIKey: slackAPIKey}, function(err, model) {
+          
+        //   if(!model) { //model not found, create new one
+        //     var slackChannelModel = new SlackChannels();
+        //     // slackChannelModel.slackChannelName = slackChannelName;
+        //     slackChannelModel.slackAPIKey = slackAPIKey;
+        //     slackChannelModel.save(function(err) {
+              
+        //       if(err) {
+        //         var response = {error: 'Unable to add new slack channel and API key to database'};
+        //         res.status(500).json(response);
+        //       } else {
+
+        //         var response = {slackDomain: client.team.domain};
+        //         console.log('Successfully saved slack channel and API key to database');
+        //         res.status(201).json(response);
+        //       } //if
+
+        //     }); //save
+        //   } //if(!model)
+        // }); //find slackChannel
+
+      }, function error (err){
+      
+        var response = {error: 'Unable to add new slack channel and API key to database'};
+        res.status(500).json(response);
+      
       }); //validateSlack
 
 
@@ -53,14 +86,14 @@ module.exports = {
 function validateSlack(token, success, error){
   var autoReconnect = false, // Automatically reconnect after an error response from Slack.
       autoMark = true, // Automatically mark each message as read after it is processed.
-      slackToken = token || 'xoxb-12608710676-WToSXWoZrkJayDKbFRAs2JpL';
+      slackToken = token;
   
   /** @type {Slack} instantiate client connection */
   var client = new Slack(slackToken, autoReconnect, autoMark); //instantiate client connection  
 
   client.on('open', function(){
     console.log('new organization. connected = ', client.connected)
-    success();
+    success(client);
   }); 
 
   client.on('error', function(err){

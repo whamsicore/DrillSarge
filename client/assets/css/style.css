@@ -24,11 +24,12 @@ html, body {
 }
 div .homepage_slack_input_container input , .homepage_slack_input_container input :focus {
   font-family: "quicksand", Verdana, Tahoma;
-  font-size:3em;
+  font-size:2em;
   border: none;
   outline: 0;
   text-align: center;
   border-bottom: 1px solid #e0e0e0;
+  width: 900px;
 }
 .homepage_slackapi_input {
   margin-top:1em;

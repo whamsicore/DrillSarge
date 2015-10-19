@@ -1,28 +1,33 @@
 angular.module('slackBotApp.homepage', [])
 
-  .controller('HomepageCtrl', function ($scope, $rootScope, $http, $state) {
+  .controller('HomepageCtrl', function ($scope, $rootScope, $http, $state, $timeout) {
 
     /**
      * Make http post to server database to store slackchannel information
      * @return {http request} save data to database
      */
     $scope.saveSlackInfo = function() {
-      var slackChannelName = $scope.slackChannelName;
+      // var slackChannelName = $scope.slackChannelName;
       var slackAPIKey = $scope.slackAPIKey;
-      if(slackChannelName && slackAPIKey) {
+      if(slackAPIKey) {
 
         return $http({
           method: 'POST',
           url: '/api/addNewOrganization',
-          data: {slackChannelName: slackChannelName, slackAPIKey: slackAPIKey}
+          data: {
+            slackAPIKey: slackAPIKey,
+            // slackChannelName: slackChannelName, 
+          }
         })
         .then(function (resp) {
           $state.go('confirm'); //go to confirm screen
 
-          console.log('Successfully saved to database')
+          console.log('Successfully saved to database. resp=', resp)
+          $rootScope.slackDomain = resp.data.slackDomain;
         }, function(err) {
-          console.log('Error:', err);
-          console.log('Cannot save to database')
+          alert("Something is wrong with your API token...");
+          // console.log('Error:', err);
+          // console.log('Cannot save to database')
         });
       }
     }
