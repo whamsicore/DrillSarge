@@ -79,7 +79,7 @@ module.exports = function(token){
           if(tag === 'rollcall'){ //conversation
             helpers.start.rollcall(channel, bot, onlineUsers);
 
-          }else if(tag === 'pollCreate'){ //conversation
+          }else if(tag === 'createpoll'){ //conversation
             helpers.start.pollCreate(bot, channel, data, user);
 
           }else if(tag === 'pollIncomplete'){ //error
