@@ -184,41 +184,41 @@ module.exports = function(token){
   /////////////////
 
   /** 10 a.m. Begin day with sharing */
-  var j1 = cron.scheduleJob('* 10 * * *', function(){ //10 a.m
-      var channel = helpers.slack.findChannelByName('general', client); 
-      var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
-      helpers.start.rollcall(channel, bot, onlineUsers);
+  // var j1 = cron.scheduleJob('* 10 * * *', function(){ //10 a.m
+  //     var channel = helpers.slack.findChannelByName('general', client); 
+  //     var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
+  //     helpers.start.rollcall(channel, bot, onlineUsers);
     
-  });
+  // });
   
-  /** 3 tests during the day */
-  var j2 = cron.scheduleJob('* 11 * * *', function(){ //11 a.m
-      var channel = helpers.slack.findChannelByName('general', client); 
-      var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
-      helpers.start.random(bot, channel, onlineUsers);
-  });
+  // /** 3 tests during the day */
+  // var j2 = cron.scheduleJob('* 11 * * *', function(){ //11 a.m
+  //     var channel = helpers.slack.findChannelByName('general', client); 
+  //     var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
+  //     helpers.start.random(bot, channel, onlineUsers);
+  // });
 
-  var j3 = cron.scheduleJob('30 13 * * *', function(){ //1:30 p.m.
-      var channel = helpers.slack.findChannelByName('general', client); 
-      var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
-      helpers.start.random(bot, channel, onlineUsers);
+  // var j3 = cron.scheduleJob('30 13 * * *', function(){ //1:30 p.m.
+  //     var channel = helpers.slack.findChannelByName('general', client); 
+  //     var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
+  //     helpers.start.random(bot, channel, onlineUsers);
       
-  });
+  // });
 
-  var j4 = cron.scheduleJob('30 15 * * *', function(){ //3:30 p.m.
-      var channel = helpers.slack.findChannelByName('general', client); 
-      var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
-      helpers.start.random(bot, channel, onlineUsers);
+  // var j4 = cron.scheduleJob('30 15 * * *', function(){ //3:30 p.m.
+  //     var channel = helpers.slack.findChannelByName('general', client); 
+  //     var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
+  //     helpers.start.random(bot, channel, onlineUsers);
       
-  });
+  // });
 
-  /** reflection, award ceremony */
-  var j5 = cron.scheduleJob('30 16 * * *', function(){ //3:30 p.m.
-      var channel = helpers.slack.findChannelByName('general', client); 
-      var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
-      helpers.start.leaderBoard(channel, onlineUsers);
+  // /** reflection, award ceremony */
+  // var j5 = cron.scheduleJob('30 16 * * *', function(){ //3:30 p.m.
+  //     var channel = helpers.slack.findChannelByName('general', client); 
+  //     var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
+  //     helpers.start.leaderBoard(channel, onlineUsers);
       
-  });
+  // });
 
   ////////////////////////////
   // CONVERSATION FUNCTIONS //
