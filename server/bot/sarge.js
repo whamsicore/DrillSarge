@@ -39,14 +39,14 @@ module.exports = function(token){
   /** Triggers when Slackbot is loaded  */
   client.on('open', function(){
     var channel = helpers.slack.findChannelByName('general', client); 
-    // var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
+    var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
     
-    // helpers.show.intro(channel);
+    helpers.show.intro(channel);
 
-    // setTimeout(function(){
-    //   helpers.start.rollcall(channel, bot, onlineUsers);
+    setTimeout(function(){
+      helpers.start.rollcall(channel, bot, onlineUsers);
 
-    // }, 3000);
+    }, 3000);
     
     channel.send('connected');
   }); 
