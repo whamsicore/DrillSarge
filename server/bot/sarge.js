@@ -59,6 +59,7 @@ module.exports = function(token){
     var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
     var user = client.getUserByID(data.user);
     var msg = data.text;
+    console.log(msg); 
 
     var conversing = bot.state.conversing; 
     var memory = bot.state.memory;
@@ -109,7 +110,7 @@ module.exports = function(token){
 
 
           }
-          else if(tag === 'createpoll'){ //conversation
+          else if(tag === 'poll'){ //conversation
             helpers.start.pollCreate(bot, channel, data, user);
 
           }

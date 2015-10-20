@@ -48,7 +48,7 @@ function startRollCall (channel, bot, onlineUsers){
     usersWhoAnswered:[],
   });
 
-  channel.send("It's time for my favorite exercise, *Rollcall*. Say yessir to let me know you're here!");
+  channel.send("It's time for my favorite exercise, \"rollcall\". <!everyone> say *yessir*!");
   var memory = bot.state.memory;
   
 
@@ -94,8 +94,7 @@ function startPollCreate (bot, channel, data, user){
   var options = [];
   var res = '';
 
-  res += "So you want to ask \""+bot.state.memory.temp.poll.prompt+"\"? \n";
-  res += getPollOptionStr(options)
+  res += getPollNewOptionStr(options);
   
   channel.send(res);
   // // channel.send("Everybody say yessir!");
@@ -243,7 +242,7 @@ function duringPollCreate (bot, channel, msg, onlineUsers, user){
       }else{ //warn and ask again
         var res = '';
         res += "You must enter at least 2 options! \n";
-        res += getPollOptionStr(options);
+        res += getPollNewOptionStr(options);
         channel.send(res);
 
       } //if
@@ -261,10 +260,10 @@ function duringPollCreate (bot, channel, msg, onlineUsers, user){
       if(options.length===4){ //maximum options reached
         //todo: save and startPoll()
         startPoll (bot, channel, onlineUsers)
-        res += "Complete! Now let's find out what poeple think.";
+        res += "Complete! Now let's find out what poeple think. <!everyone> MUST respond!";
       
       }else{
-        res += getPollOptionStr(options);
+        res += getPollNewOptionStr(options);
 
       } //if(poll completed) 
 
@@ -372,22 +371,26 @@ function getPollResultsDisplayString(bot, onlineUsers){
     res += "`" + count + " number of people chose " + opt + "` \n"; 
 
   }); //options.forEach
+
   res += "A total of "+onlineUsers.length+" members(s) responded. \n";
 
   return res;
 } //getPollResultsDisplayString
 
 
-function getPollOptionStr (options){
+function getPollNewOptionStr (options){
   var res = '';
   var abc = ['A','B','C','D']; //indicates max and alphabetical mapping
 
   res += "What would you like me to put for option "+abc[options.length]+"? \n";
-  res += "(type `i'm done` to end, or `cancel` to cancel)"
+  res += "(type `i'm done` to end, or `cancel` to cancel) \n"
+  options.forEach(function(opt, index){
+    res += "`"+abc[index] + ": "+ opt + "`\n"
+  });
 
   return res;
 
-} //getPollOptionStr
+} //getPollNewOptionStr
 
 
 
@@ -450,14 +453,13 @@ function showHelp (channel){
   res += "leaderboard: show leaderboard \n"
   res += "salute: What you should do everyday. \n"
   res += "rollcall: make sure everyone is present \n"
-  res += "createpoll <question>?: poll the entire team! \n"
+  res += "poll <question>?: poll the entire team! \n"
   res += "random: poll the team with a random question! \n"
   res += "challenge: challenge your teammates (coming soon...) \n"
   res += "hungry: order food (coming soon...) \n"
   res += "givePoints @<username>: give points to teammates (coming soon...) \n"
   res += "giveHighFive @<username>: high five your teammate(coming soon...) \n"
-  res += "quit: end conversation (coming soon...) \n"
-  res += " ```\n"
+  res += "quit: end conversation (coming soon...) ```"
 
   channel.send(res);
 } //showSchedule
