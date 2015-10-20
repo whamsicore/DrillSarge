@@ -2,7 +2,6 @@ var bodyParser = require('body-parser');
 var express = require('express');
 var mongoose = require('mongoose');
 var SlackDb = require('./db/slackChannel/slackChannelModel');
-var Sarge = require('./bot/sarge.js');
 
 var app = express();
 
@@ -18,11 +17,13 @@ mongoose.connect(process.env.MONGOLAB_URI || 'mongodb://localhost/slackBotWeb');
 
 /** NOTE: load Sarge for all Slack organizations */
 SlackDb.find({}, function(err, orgs){
-
+  // console.log('test:', orgs)
   for(var key in orgs){
-    var token = orgs.slackAPIKey;
-    var bot = new Sarge(token); //insert token
-    
+    var org = orgs[key]
+    var token = org.slackAPIKey;
+    var sarge = require('./bot/sarge.js');
+    var bot = new sarge(token); 
+
 
   } //for
 

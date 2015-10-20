@@ -9,7 +9,7 @@ var testData = {
     {
       prompt: "What do you like more?",
       options: [
-        'Blue', 'Red', 'Black', 'Orange', 'Yellow', 'Pink', 'Brown', 'Blue', 'Turquoise'
+        'Blue', 'Red', 'Black', 'Orange'
       ]
     }, 
     {
@@ -53,6 +53,18 @@ var testData = {
     { 
       prompt: "What sport are you best at?",
       options: ["Basketball", "Soccer", "Tennis", "Swimming"]
+    },
+    { 
+      prompt: "What sport are you best at?",
+      options: ["Basketball", "Soccer", "Tennis", "Swimming"]
+    },
+    { 
+      prompt: "Favorite hair color?",
+      options: ["Blonde", "Brunette", "Redhead", "Auburne"]
+    },
+    { 
+      prompt: "Favorite book?",
+      options: ["Lord of the Ring", "Dune", "Foundation", "War and Peace"]
     }
   ], // questions
   

@@ -48,7 +48,7 @@ function startRollCall (channel, bot, onlineUsers){
     usersWhoAnswered:[],
   });
 
-  channel.send("It's time for my favorite exercise, \"rollcall\". <!everyone> say *yessir*!");
+  channel.send("It's time for my favorite exercise, \"rollcall\". <!everyone> Say *YESSIR*!");
   var memory = bot.state.memory;
   
 
@@ -64,8 +64,8 @@ function startRollCall (channel, bot, onlineUsers){
       unansweredList.forEach(function(id){
           response += "<@"+ id +">, ";
       });
-      response += script.res.noResponse[ Math.floor( Math.random()*script.res.noResponse.length ) ] ;
-      response += " Say yessir! ";
+      response += " I'm still waitin' on you to say YESSIR! ";
+      // response += script.res.noResponse[ Math.floor( Math.random()*script.res.noResponse.length ) ] ;
 
       channel.send(response);
     } //if(!conversing)
@@ -97,13 +97,7 @@ function startPollCreate (bot, channel, data, user){
   res += getPollNewOptionStr(options);
   
   channel.send(res);
-  // // channel.send("Everybody say yessir!");
-  // setTimeout(function(){
-  //   if(bot.state.memory.temp.waiting){
-  //     channel.send("Get back to me when you've made up your mind, son!");
-  //     bot.endConversation();
-  //   } //if
-  // }, 5000); //note: change to 10 seconds once complete
+  
 } //startPollCreate
 
 // send out the poll
@@ -163,18 +157,18 @@ function startRandomPoll (bot, channel, onlineUsers){
     poll: questions[Math.floor(Math.random() * questions.length)]
   });
 
-  console.log('random poll = ', bot.state.memory.temp.poll);
-
   startPoll (bot, channel, onlineUsers);
   // startPoll (bot, channel, onlineUsers, onlineUsers, user);
 }
 
 function startPollIncomplete(channel){
+
   var response = '';
   response += "Son, if you want me create a poll, you gotta provide a question. \n"
   response += ">Follow the format `poll <question>?`"
   channel.send(response);
-}
+
+} 
 
 
 
@@ -185,6 +179,7 @@ function startPollIncomplete(channel){
 /////////////////////////
 
 function duringRollCall (msg, channel, user, bot, onlineUsers){
+
   var memory = bot.state.memory;
 
   if(msg==='yessir'){
@@ -214,7 +209,9 @@ function duringRollCall (msg, channel, user, bot, onlineUsers){
       } //if(finished)
     } //if(new response)
   }else{ //interupts are reprimanded
+
     updateScore(user, "don't interrupt", channel);
+
   } //if
 
 } //duringYessir
@@ -230,9 +227,9 @@ function duringPollCreate (bot, channel, msg, onlineUsers, user){
 
 
   if( user.id === creator_id ){
-    if(msg.match( /^i\'m done$/i ) ){
-      // console.log('msg', msg);  
-      // console.log('options', options);  
+
+
+    if(msg.match( /^i\'m done$/i ) ){ 
       
       // channel.send("poll is finished")
       if(options.length>=2){
@@ -240,6 +237,7 @@ function duringPollCreate (bot, channel, msg, onlineUsers, user){
         startPoll (bot, channel, onlineUsers);
 
       }else{ //warn and ask again
+      
         var res = '';
         res += "You must enter at least 2 options! \n";
         res += getPollNewOptionStr(options);
@@ -248,11 +246,12 @@ function duringPollCreate (bot, channel, msg, onlineUsers, user){
       } //if
       
     }else if(msg === 'cancel'){
-      channel.send("Sure thing! (Poll Cancelled)")
+
+      channel.send("Sure thing! `poll cancelled`");
       bot.endConversation();
       
     }else{ //save new option
-      console.log('go to the next step')
+
       var res = '';
 
       options.push(msg); //push to option
@@ -382,7 +381,7 @@ function getPollNewOptionStr (options){
   var res = '';
   var abc = ['A','B','C','D']; //indicates max and alphabetical mapping
 
-  res += "What would you like me to put for option "+abc[options.length]+"? \n";
+  res += "What would you like me to put for `option "+abc[options.length]+"`? \n";
   res += "(type `i'm done` to end, or `cancel` to cancel) \n"
   options.forEach(function(opt, index){
     res += "`"+abc[index] + ": "+ opt + "`\n"
@@ -447,19 +446,19 @@ function showHelp (channel){
   var res = '';
 
   res += "Useful Commands: \n"
-  res += "```help: show commands \n"
-  res += "schedule: show daily schedule \n"
-  res += "poke: I dare you to \n"
-  res += "leaderboard: show leaderboard \n"
-  res += "salute: What you should do everyday. \n"
-  res += "rollcall: make sure everyone is present \n"
-  res += "poll <question>?: poll the entire team! \n"
-  res += "random: poll the team with a random question! \n"
-  res += "challenge: challenge your teammates (coming soon...) \n"
-  res += "hungry: order food (coming soon...) \n"
-  res += "givePoints @<username>: give points to teammates (coming soon...) \n"
-  res += "giveHighFive @<username>: high five your teammate(coming soon...) \n"
-  res += "quit: end conversation (coming soon...) ```"
+  res += "`*help*:         show commands `\n"
+  res += "`*schedule*:     show daily schedule `\n"
+  res += "`*poke*:         I dare you to `\n"
+  res += "`*leaderboard*:  show leaderboard `\n"
+  res += "`*salute*:       What you should do everyday. `\n"
+  res += "`*rollcall*:     make sure everyone is present `\n"
+  res += "`*poll*:         poll the entire team! `\n"
+  res += "`*random*:       poll the team with a random question! `\n"
+  res += "`*challenge*:    challenge your teammates (coming soon...) `\n"
+  res += "`*hungry*:       order food (coming soon...) `\n"
+  res += "`*quit*:         end conversation (coming soon...) `\n"
+  res += "`*givePoints*:   give points to teammates (coming soon...) `\n"
+  res += "`*giveHighFive*: high five your teammate(coming soon...) `\n"
 
   channel.send(res);
 } //showSchedule
@@ -481,7 +480,6 @@ function parseCommand (msg){
   /** single word commands */
   for(var tag in commands){
     var regex = commands[tag];
-    // console.log('regex='+regex);
     
     if(match = msg.match(regex)){
       return {
@@ -497,7 +495,6 @@ function parseCommand (msg){
 
 
 function pointMinus(user){
-  console.log('test', user)
   /** add user to db if not exist */
   var savedUser = db.users.findOrCreate(user.id);
   savedUser.score--; 
@@ -597,7 +594,7 @@ function getUnansweredUserIds(answeredUserIds, onlineUsers){
       } //if
       
     }else{
-      console.log('error @ getUnansweredUserIds')
+
     }
   } //for
 

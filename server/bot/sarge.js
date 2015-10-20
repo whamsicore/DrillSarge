@@ -59,7 +59,6 @@ module.exports = function(token){
     var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
     var user = client.getUserByID(data.user);
     var msg = data.text;
-    console.log(msg); 
 
     var conversing = bot.state.conversing; 
     var memory = bot.state.memory;
@@ -187,6 +186,7 @@ module.exports = function(token){
   /** 10 a.m. Begin day with sharing */
   var j1 = cron.scheduleJob('* 10 * * *', function(){ //10 a.m
     var channel = helpers.slack.findChannelByName('general', client); 
+    bot.endConversation();
     // var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
     // helpers.start.rollcall(channel, bot, onlineUsers);
     
@@ -196,6 +196,7 @@ module.exports = function(token){
   /** 3 tests during the day */
   var j2 = cron.scheduleJob('* 11 * * *', function(){ //11 a.m
     var channel = helpers.slack.findChannelByName('general', client); 
+    bot.endConversation();
     // var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
     // helpers.start.random(bot, channel, onlineUsers);
     channel.send('The time is now 11 a.m., time for our first challenge!');
@@ -203,6 +204,7 @@ module.exports = function(token){
 
   var j3 = cron.scheduleJob('30 13 * * *', function(){ //1:30 p.m.
     var channel = helpers.slack.findChannelByName('general', client); 
+    bot.endConversation();
     // var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
     // helpers.start.random(bot, channel, onlineUsers);
     channel.send('The time is now 1:30 p.m., time for our second challenge.');
@@ -211,6 +213,7 @@ module.exports = function(token){
 
   var j4 = cron.scheduleJob('30 15 * * *', function(){ //3:30 p.m.
     var channel = helpers.slack.findChannelByName('general', client); 
+    bot.endConversation();
     // var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
     // helpers.start.random(bot, channel, onlineUsers);
     channel.send('The time is now 3:30 p.m., time for our third challenge.');
@@ -220,6 +223,7 @@ module.exports = function(token){
   // /** reflection, award ceremony */
   var j5 = cron.scheduleJob('15 16 * * *', function(){ //3:30 p.m.
     var channel = helpers.slack.findChannelByName('general', client); 
+    bot.endConversation();
     // var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
     // helpers.start.leaderBoard(channel, onlineUsers);
     channel.send('The time is now 4:15 p.m., time for our daily reflection.');
