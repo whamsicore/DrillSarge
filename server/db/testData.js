@@ -33,7 +33,7 @@ var testData = {
     {
       prompt: "Best company?",
       options: [
-        'Apple', 'Google', 'Facebook', 'Amazon', 'Able'
+        'Apple', 'Google', 'Facebook', 'Amazon'
       ]
     },  
     {
