@@ -71,10 +71,15 @@ module.exports = function(token){
       /** NOTE: only if there is no ongoing conversation */
       var command = helpers.parse(msg);
       
-      if(command.tag==='quit'){
-        channel.send("`(conversation cancelled)`");
-        bot.endConversation();
-      }
+      if(conversing){
+        if(command){
+          if(command.tag==='quit'){
+            channel.send("`(conversation cancelled)`");
+            bot.endConversation();
+          }
+          
+        } //if(command)
+      } //if(conversing)
 
       //catch quit
       if(!conversing){
