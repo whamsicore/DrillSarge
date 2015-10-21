@@ -9,13 +9,13 @@ module.exports = {
   'schedule': new RegExp('^schedule$', 'i'), //show schedule for trivia and games
   'about': new RegExp('^about$', 'i'), //show schedule for trivia and games
   'score': new RegExp('^score$', 'i'), //show your own score
-  'leaderboard': new RegExp('^leaderboard$', 'i'), //show everyones scores
+  'scoreboard': new RegExp('^scoreboard$', 'i'), //show everyones scores
   'challenge': new RegExp('^challenge$', 'i'), 
   'salute': new RegExp('^salute$', 'i'), 
   'poke': new RegExp('^poke$', 'i'), //say random blurb
   'hungry': new RegExp('^hungry$', 'i'), //yelp restaurants
   'givePoints': new RegExp('^give \\d points to (\\w)+$', 'i'), //give points to someone
-  'highfive': new RegExp('^highfive <@(\d+)>$', 'i'), //give points to someone
+  'highfive': new RegExp('^highfive <@([\\d\\w]+)>$', 'i'), //give points to someone
   'highfiveErr': new RegExp('^highfive$', 'i'), //give points to someone
   'quit': new RegExp('^quit$', 'i'), //give points to someone
 }

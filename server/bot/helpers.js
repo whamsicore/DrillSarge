@@ -15,10 +15,12 @@ module.exports = {
     pollErr: showPollErr,
     help: showHelp,
     schedule: showSchedule,
-    leaderBoard: showLeaderBoard,
+    scoreBoard: showScoreBoard,
     score: showScore,
     about: showAbout,
     intro: showIntro,
+    highfive: showHighfive,
+    highfiveErr: showHighfiveErr,
   },
   during:{ // when conversation has started already
     rollcall: duringRollCall,
@@ -68,7 +70,7 @@ function startRollCall (channel, bot, onlineUsers){
           response += "<@"+ user_id +">, ";
       });
       response += " to say YESSIR... ";
-      response += pickRandom(script.res.noResponse) ;
+      response += pickRandom(script.noResponse) ;
 
 
       channel.send(response);
@@ -142,7 +144,7 @@ function startPoll (bot, channel, onlineUsers){
       unansweredList.forEach(function(id){
           response += "<@"+ id +">, ";
       });
-      response += pickRandom(script.res.noResponse);
+      response += pickRandom(script.noResponse);
       response += " Help us finish the poll! \n";
       response += getPollDisplayString(memory.poll);
 
@@ -339,7 +341,30 @@ function showPollErr(channel){
   response += "Son, if you want me create a poll, you gotta provide a question. \n"
   response += ">Follow the format `poll <question>?`"
   channel.send(response);
+}
+
+function showHighfiveErr(channel){
+
+  var response = '';
+  response += "Son, if you want me highfive someone, you gotta tell me who. \n"
+  response += ">Follow the format `highfive @user_name`"
+  channel.send(response);
 } 
+
+function showHighfive (bot, channel, data, user){
+
+  var target_id = data[1]; 
+  
+  // add points for users in database
+  pointPlus(target_id, 5);
+  
+  channel.send("<@"+target_id+"> gets +5 points for being awesome! "+pickRandom(script.encourage)) ;
+
+} //showHighfive
+
+/////////////////////
+// DISPLAY HELPERS //
+/////////////////////
 
 function getPollDisplayString(poll){
   var res = '';
@@ -443,7 +468,7 @@ function showIntro (channel){
   channel.send(response);
 }
 
-function showLeaderBoard (channel, onlineUsers){
+function showScoreBoard (channel, onlineUsers){
   var response = '';
   
   for(var key in onlineUsers){
@@ -468,12 +493,12 @@ function showHelp (channel){
   res += "`help`: Show commands \n"
   res += "`schedule`: Show daily schedule \n"
   res += "`poke`: I dare you to \n"
-  res += "`leaderboard`: Show leaderboard \n"
+  res += "`scoreboard`: Show scores of all players \n"
   res += "`salute`: What you should do everyday. \n"
   res += "`rollcall`: Make sure everyone is present \n"
   res += "`poll`: Poll the entire team! \n"
   res += "`random`: Poll the team with a random question! \n"
-  res += "`highfive`: High five a teammate  (NEW FEATURE!) \n"
+  res += "`highfive`: High five a teammate to give them points (NEW FEATURE!) \n"
   res += "`quit`: End any conversation (NEW FEATURE!) \n"
   res += "`challenge`: Challenge your teammates (coming soon...) \n"
   res += "`hungry`: Order food (coming soon...) \n"
@@ -513,16 +538,17 @@ function parseCommand (msg){
 } //parseCommand
 
 
-function pointMinus(user){
+function pointMinus(user_id){
   /** add user to db if not exist */
-  var savedUser = db.users.findOrCreate(user.id);
+  var savedUser = db.users.findOrCreate(user_id);
   savedUser.score--; 
 }
 
-function pointPlus(user){
+function pointPlus(user_id, num){
+  var num = num || 1;
   /** add user to db if not exist */
-  var savedUser = db.users.findOrCreate(user.id);
-  savedUser.score++; 
+  var savedUser = db.users.findOrCreate(user_id);
+  savedUser.score+=num; 
 }
 
 /** return random element in array */

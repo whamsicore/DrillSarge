@@ -59,7 +59,7 @@ module.exports = function(token){
     var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
     var user = client.getUserByID(data.user);
     var msg = data.text;
-
+    
     var conversing = bot.state.conversing; 
     var memory = bot.state.memory;
 
@@ -79,12 +79,12 @@ module.exports = function(token){
           var data = command.data; 
 
           if(tag === 'poke'){ //show. random res.
-            channel.send('<@' + user.id + '> '+ helpers.pickRandom(script.res.discourage) + " `(-1 pt.)`");
-            helpers.users.point.minus(user);
+            channel.send('<@' + user.id + '> '+ helpers.pickRandom(script.discourage) + " `(-1 pt.)`");
+            helpers.users.point.minus(user.id);
           }
           else if(tag === 'salute'){ //show: random res.
-            channel.send('<@' + user.id + '> '+ helpers.pickRandom(script.res.encourage) + " `(+1 pt.)`");
-            helpers.users.point.plus(user);
+            channel.send('<@' + user.id + '> '+ helpers.pickRandom(script.encourage) + " `(+1 pt.)`");
+            helpers.users.point.plus(user.id);
 
           } 
           else if(tag === 'help'){ //show
@@ -95,8 +95,8 @@ module.exports = function(token){
             helpers.show.about(channel);          
 
           }
-          else if(tag === 'leaderboard'){ //show
-            helpers.show.leaderBoard(channel, onlineUsers);          
+          else if(tag === 'scoreboard'){ //show
+            helpers.show.scoreBoard(channel, onlineUsers);          
 
           }
           else if(tag === 'score'){ //show
@@ -118,6 +118,15 @@ module.exports = function(token){
           }
           else if(tag === 'pollErr'){ //error
             helpers.show.pollErr(channel);          
+
+          }
+          else if(tag === 'highfive'){ //gamification
+
+            helpers.show.highfive(bot, channel, data, user);
+
+          }
+          else if(tag === 'highfiveErr'){ //error
+            helpers.show.highfiveErr(channel);          
 
           }
           else if(tag === 'share'){ //conversation
@@ -231,7 +240,7 @@ module.exports = function(token){
     var channel = helpers.slack.findChannelByName('general', client); 
     bot.endConversation();
     // var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
-    // helpers.start.leaderBoard(channel, onlineUsers);
+    // helpers.show.scoreBoard(channel, onlineUsers);
     channel.send('The time is now 4:15 p.m., time for our daily reflection.');
         
   });
