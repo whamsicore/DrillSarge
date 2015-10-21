@@ -69,10 +69,15 @@ module.exports = function(token){
       // TAKE COMMAND   //
       ////////////////////
       /** NOTE: only if there is no ongoing conversation */
+      var command = helpers.parse(msg);
+      if(command==='quit'){
+        channel.send("`(conversation cancelled)`");
+        bot.endConversation();
+      }
 
+      //catch quit
       if(!conversing){
         
-        var command = helpers.parse(msg);
         if(command){
           var tag = command.tag; 
           var data = command.data; 
@@ -131,11 +136,6 @@ module.exports = function(token){
           else if(tag === 'challenge'){ //conversation
             helpers.start.random(bot, channel, onlineUsers);
 
-
-          }
-          else if(tag === 'quit'){ //conversation
-            channel.send('coming soon...');
-            // bot.endConversation();
 
           }
           else if(tag === 'challenge'){ //show

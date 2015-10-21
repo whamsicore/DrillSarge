@@ -71,6 +71,13 @@ function startRollCall (channel, bot, onlineUsers){
     } //if(!conversing)
 
   }, 5500);
+
+  //cancel reminder after five minutes
+  setTimeout(function(){
+    if(bot.reminder){
+      clearInterval(bot.reminder);
+    }
+  }, 5*60*1000);
 } //startRollCall
 
 
@@ -106,9 +113,7 @@ function startPoll (bot, channel, onlineUsers){
   bot.updateMemory({
     topic: 'poll', 
     usersWhoAnswered: [],  
-    answers: [ //format = {user_id, option_id}
-
-    ]
+    answers: [] //format = {user_id, option_id}
   });
 
   var memory = bot.state.memory.temp;
@@ -143,7 +148,12 @@ function startPoll (bot, channel, onlineUsers){
   }, 6000);
 
   //expect everyone to answer
-
+  //cancel reminder after five minutes
+  setTimeout(function(){
+    if(bot.reminder){
+      clearInterval(bot.reminder);
+    }
+  }, 5*60*1000);
 
 } //startPoll
 

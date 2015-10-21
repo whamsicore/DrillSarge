@@ -24,7 +24,6 @@ SlackDb.find({}, function(err, orgs){
     var sarge = require('./bot/sarge.js');
     var bot = new sarge(token); 
 
-
   } //for
 
 }); //find
