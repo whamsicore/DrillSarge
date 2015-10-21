@@ -148,7 +148,7 @@ module.exports = function(token){
         //quit functionality
         if(command){
           if(command.tag==='quit'){
-            channel.send("`(conversation cancelled)`");
+            channel.send("`("+ bot.state.memory.temp.topic +" cancelled)`");
             bot.endConversation();
           }          
         } //if(command)
