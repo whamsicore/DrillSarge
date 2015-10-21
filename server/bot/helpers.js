@@ -197,7 +197,7 @@ function duringRollCall (msg, channel, user, bot, onlineUsers){
     var answeredUserIds = memory.temp.usersWhoAnswered;
     
     if(answeredUserIds.indexOf(user.id)===-1){ //user has not answered before
-
+      console.log('tsting');
       updateScore(user, 'answering', channel);
 
       answeredUserIds.push(user.id);
@@ -521,11 +521,11 @@ function updateScore(user, reason, channel){
   var change = 0; 
 
   /** determine change amount */
-  if(reason === 'answering!'){
+  if(reason === 'answering'){
     change = 1;
-  }else if(reason === 'answering first!'){
+  }else if(reason === 'answering first'){
     change = 2;
-  }else if(reason === 'interrupting!'){
+  }else if(reason === 'interrupting'){
     change = -1;
 
   }else if(reason === 'extra'){
@@ -536,15 +536,12 @@ function updateScore(user, reason, channel){
   /** add user to db if not exist */
   var User = db.users.findOrCreate(user.id);
   
-
   /** update database */
   User.score += change; //update database
   /** output  */
-  if(change>0){
-    channel.send('<@'+user.id+'> '+ change +'points for '+ reason +' ('+db.users[user.id].points+' total)');
-  }else if(change<0){
-    channel.send('<@'+user.id+'> '+ Math.abs(change)+' points for '+ reason +' ('+db.users[user.id].points+' total)');
-  }
+  
+  channel.send('<@'+user.id+'>'+ (change>0 ? '+':'-') + change + ' Point(s) `for '+reason+'`');
+  
 
 } //updateScore
 
