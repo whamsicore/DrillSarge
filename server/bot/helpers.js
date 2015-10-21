@@ -70,7 +70,7 @@ function startRollCall (channel, bot, onlineUsers){
       channel.send(response);
     } //if(!conversing)
 
-  }, 3500);
+  }, 5500);
 } //startRollCall
 
 
@@ -97,7 +97,7 @@ function startPollCreate (bot, channel, data, user){
   res += getPollNewOptionStr(options);
   
   channel.send(res);
-  
+
 } //startPollCreate
 
 // send out the poll
