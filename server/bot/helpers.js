@@ -5,6 +5,7 @@ var script = require("./script")
 
 module.exports = {
   parse: parseCommand,
+  pickRandom: pickRandom,
   start: { // beginning a conversation
     rollcall: startRollCall,
     pollCreate: startPollCreate,
@@ -62,11 +63,13 @@ function startRollCall (channel, bot, onlineUsers){
 
       var response = '';
       
-      unansweredList.forEach(function(id){
-          response += "<@"+ id +">, ";
+      response += " I'm still waitin' on ";
+      unansweredList.forEach(function(user_id){
+          response += "<@"+ user_id +">, ";
       });
-      response += " I'm still waitin' on you to say YESSIR! ";
-      // response += script.res.noResponse[ Math.floor( Math.random()*script.res.noResponse.length ) ] ;
+      response += " to say YESSIR... ";
+      response += pickRandom(script.res.noResponse) ;
+
 
       channel.send(response);
     } //if(!conversing)
@@ -78,7 +81,7 @@ function startRollCall (channel, bot, onlineUsers){
     if(bot.reminder){
       clearInterval(bot.reminder);
     }
-  }, 5*60*1000);
+  }, 1*60*1000);
 } //startRollCall
 
 
@@ -139,7 +142,7 @@ function startPoll (bot, channel, onlineUsers){
       unansweredList.forEach(function(id){
           response += "<@"+ id +">, ";
       });
-      response += script.res.noResponse[ Math.floor( Math.random()*script.res.noResponse.length ) ] ;
+      response += pickRandom(script.res.noResponse);
       response += " Help us finish the poll! \n";
       response += getPollDisplayString(memory.poll);
 
@@ -165,7 +168,7 @@ function startRandomPoll (bot, channel, onlineUsers){
   var questions = testData.questions;
 
   bot.startConversation({
-    poll: questions[Math.floor(Math.random() * questions.length)]
+    poll: pickRandom(questions)
   });
 
   startPoll (bot, channel, onlineUsers);
@@ -198,7 +201,6 @@ function duringRollCall (msg, channel, user, bot, onlineUsers){
     var answeredUserIds = memory.temp.usersWhoAnswered;
     
     if(answeredUserIds.indexOf(user.id)===-1){ //user has not answered before
-      console.log('tsting');
       updateScore(user, 'answering', channel);
 
       answeredUserIds.push(user.id);
@@ -525,6 +527,10 @@ function pointPlus(user){
   savedUser.score++; 
 }
 
+/** return random element in array */
+function pickRandom(arr){
+  return arr[Math.floor(Math.random()*arr.length)];
+}
 
 function updateScore(user, reason, channel){
   var change = 0; 
@@ -549,7 +555,7 @@ function updateScore(user, reason, channel){
   User.score += change; //update database
   /** output  */
   
-  channel.send('<@'+user.id+'>'+ (change>0 ? '+':'-') + change + ' Point(s) (for `'+reason+'`)');
+  channel.send('<@'+user.id+'>'+ (change>0 ? '+':'-') + change + ' Point(s) (`'+reason+'`)');
   
 
 } //updateScore

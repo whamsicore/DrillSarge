@@ -79,11 +79,11 @@ module.exports = function(token){
           var data = command.data; 
 
           if(tag === 'poke'){ //show. random res.
-            channel.send('<@' + user.id + '> '+script.res.poke[ Math.floor( Math.random()*script.res.poke.length ) ] + " `(-1 pt.)`");
+            channel.send('<@' + user.id + '> '+ helpers.pickRandom(script.res.discourage) + " `(-1 pt.)`");
             helpers.users.point.minus(user);
           }
           else if(tag === 'salute'){ //show: random res.
-            channel.send('<@' + user.id + '> '+script.res.salute[ Math.floor( Math.random()*script.res.salute.length ) ]  + " `(+1 pt.)`");
+            channel.send('<@' + user.id + '> '+ helpers.pickRandom(script.res.encourage) + " `(+1 pt.)`");
             helpers.users.point.plus(user);
 
           } 
@@ -269,13 +269,6 @@ module.exports = function(token){
   this.clearMemory = function(){
     bot.state.memory.temp = {}; //reset temporary memory
   }
-  /////////////////
-  // DAILY TASKS //
-  /////////////////
-  /** Ask question every hour  */  
-  // var j = cron.scheduleJob('* * * * * *', function(){ 
-  //     console.log('The answer to life, the universe, and everything!');
-  // });
+  
 
-
-}
+} //export

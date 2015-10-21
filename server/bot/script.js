@@ -2,7 +2,7 @@
 
 module.exports = {
   res: {
-    poke: [
+    discourage: [ //e.g. response for poke
       "What do you want son!",
       "I don't got time for that!",
       "I love the smell of coffee and napalm in the morning!",
@@ -17,7 +17,7 @@ module.exports = {
       "Ouch!!!",
       "Why you little..."
     ], 
-    salute: [
+    encourage: [ //e.g. response for salute
       "I'm proud to have 'ya, private.",
       "I see major improvements.",
       "Keep it up son!",
@@ -33,14 +33,15 @@ module.exports = {
       "You look like you need a break...",
     ], 
     noResponse: [
-      "are you slow?",
-      "discipline! C'mon now!",
-      "are you deaf?",
-      "what's going on in that head of yours?",
-      "are you ok?",
-      "don't play dumb with me!",
-      "stop dillidallyin'!",
-      "quit jerkin' off!",
+      "Are you slow?",
+      "C'mon now!",
+      "Are you deaf?",
+      "What's going on?",
+      "Are you ok?",
+      "Don't play dumb!",
+      "Stop dillidallyin'!",
+      "Quit jerkin' off!",
+      "Hurry up!",
     ]
   }, 
   
