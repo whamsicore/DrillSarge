@@ -41,12 +41,12 @@ module.exports = function(token){
     var channel = helpers.slack.findChannelByName('general', client); 
     var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
     
-    helpers.show.intro(channel);
+    // helpers.show.intro(channel);
 
-    setTimeout(function(){
-      helpers.start.rollcall(channel, bot, onlineUsers);
+    // setTimeout(function(){
+    //   helpers.start.rollcall(channel, bot, onlineUsers);
 
-    }, 3000);
+    // }, 3000);
     
     channel.send('connected');
   }); 
@@ -94,7 +94,6 @@ module.exports = function(token){
           else if(tag === 'about'){ //show
             helpers.show.about(channel);          
 
-
           }
           else if(tag === 'leaderboard'){ //show
             helpers.show.leaderBoard(channel, onlineUsers);          
@@ -117,8 +116,8 @@ module.exports = function(token){
             helpers.start.pollCreate(bot, channel, data, user);
 
           }
-          else if(tag === 'pollIncomplete'){ //error
-            helpers.start.pollIncomplete(channel);          
+          else if(tag === 'pollErr'){ //error
+            helpers.show.pollErr(channel);          
 
           }
           else if(tag === 'share'){ //conversation

@@ -9,10 +9,10 @@ module.exports = {
   start: { // beginning a conversation
     rollcall: startRollCall,
     pollCreate: startPollCreate,
-    pollIncomplete: startPollIncomplete,
     random: startRandomPoll,
   },
   show: {
+    pollErr: showPollErr,
     help: showHelp,
     schedule: showSchedule,
     leaderBoard: showLeaderBoard,
@@ -175,15 +175,6 @@ function startRandomPoll (bot, channel, onlineUsers){
   // startPoll (bot, channel, onlineUsers, onlineUsers, user);
 }
 
-function startPollIncomplete(channel){
-
-  var response = '';
-  response += "Son, if you want me create a poll, you gotta provide a question. \n"
-  response += ">Follow the format `poll <question>?`"
-  channel.send(response);
-
-} 
-
 
 
 
@@ -342,6 +333,13 @@ function duringPoll(bot, channel, msg, onlineUsers, user){
 // SHOW SOMETHING //
 ////////////////////
 
+function showPollErr(channel){
+
+  var response = '';
+  response += "Son, if you want me create a poll, you gotta provide a question. \n"
+  response += ">Follow the format `poll <question>?`"
+  channel.send(response);
+} 
 
 function getPollDisplayString(poll){
   var res = '';
@@ -467,19 +465,19 @@ function showHelp (channel){
   var res = '';
 
   res += "Useful Commands: \n"
-  res += "`*help*:         show commands `\n"
-  res += "`*schedule*:     show daily schedule `\n"
-  res += "`*poke*:         I dare you to `\n"
-  res += "`*leaderboard*:  show leaderboard `\n"
-  res += "`*salute*:       What you should do everyday. `\n"
-  res += "`*rollcall*:     make sure everyone is present `\n"
-  res += "`*poll*:         poll the entire team! `\n"
-  res += "`*random*:       poll the team with a random question! `\n"
-  res += "`*challenge*:    challenge your teammates (coming soon...) `\n"
-  res += "`*hungry*:       order food (coming soon...) `\n"
-  res += "`*quit*:         end conversation (coming soon...) `\n"
-  res += "`*givePoints*:   give points to teammates (coming soon...) `\n"
-  res += "`*giveHighFive*: high five your teammate(coming soon...) `\n"
+  res += "`help`: Show commands \n"
+  res += "`schedule`: Show daily schedule \n"
+  res += "`poke`: I dare you to \n"
+  res += "`leaderboard`: Show leaderboard \n"
+  res += "`salute`: What you should do everyday. \n"
+  res += "`rollcall`: Make sure everyone is present \n"
+  res += "`poll`: Poll the entire team! \n"
+  res += "`random`: Poll the team with a random question! \n"
+  res += "`highfive`: High five a teammate  (NEW FEATURE!) \n"
+  res += "`quit`: End any conversation (NEW FEATURE!) \n"
+  res += "`challenge`: Challenge your teammates (coming soon...) \n"
+  res += "`hungry`: Order food (coming soon...) \n"
+  res += "`give`: Give points to teammates (coming soon...) \n"
 
   channel.send(res);
 } //showSchedule

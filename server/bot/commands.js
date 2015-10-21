@@ -2,7 +2,7 @@
 
 module.exports = {
   'poll': new RegExp('^poll (.+)$', 'i'), 
-  'pollIncomplete': new RegExp('^poll$', 'i'), 
+  'pollErr': new RegExp('^poll$', 'i'), 
   'rollcall': new RegExp('^rollcall$', 'i'), 
   'help': new RegExp('^help$', 'i'), //show available commands
   'random': new RegExp('^random$', 'i'), //show available commands
@@ -15,7 +15,8 @@ module.exports = {
   'poke': new RegExp('^poke$', 'i'), //say random blurb
   'hungry': new RegExp('^hungry$', 'i'), //yelp restaurants
   'givePoints': new RegExp('^give \\d points to (\\w)+$', 'i'), //give points to someone
-  'giveHighFive': new RegExp('^give (\\w)+ a five!?$', 'i'), //give points to someone
+  'highfive': new RegExp('^highfive <@(\d+)>$', 'i'), //give points to someone
+  'highfiveErr': new RegExp('^highfive$', 'i'), //give points to someone
   'quit': new RegExp('^quit$', 'i'), //give points to someone
 }
 
