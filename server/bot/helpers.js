@@ -52,10 +52,21 @@ function startRollCall (channel, bot, onlineUsers){
     usersWhoAnswered:[],
   });
 
-  channel.send("It's time for my favorite exercise, \"rollcall\". <!everyone> Say *YESSIR*!");
-  var memory = bot.state.memory;
-  
+  // send rollcall prompt to all online users
+  var response = '';
+  response += "It's time for my favorite exercise \"rollcall\". \n"
+  onlineUsers.forEach(function(user){
+      response += "<@"+ user.id +"> ";
+  });
 
+  response += "say YESSIR!!!"
+  channel.send(response);
+
+
+
+
+  // create reminder
+  var memory = bot.state.memory; //closure variable for future reference
   bot.reminder = setInterval(function(){
     if(!bot.state.conversing){
       clearInterval(bot.reminder);
@@ -65,11 +76,11 @@ function startRollCall (channel, bot, onlineUsers){
 
       var response = '';
       
-      response += " I'm still waitin' on ";
+      response += "We're still waiting on ";
       unansweredList.forEach(function(user_id){
-          response += "<@"+ user_id +">, ";
+          response += "<@"+ user_id +"> ";
       });
-      response += " to say YESSIR... ";
+      response += " to say YESSIR. ";
       response += pickRandom(script.noResponse) ;
 
 
@@ -78,7 +89,7 @@ function startRollCall (channel, bot, onlineUsers){
 
   }, 5500);
 
-  //cancel reminder after five minutes
+  //cancel reminder after one minute
   setTimeout(function(){
     if(bot.reminder){
       clearInterval(bot.reminder);
@@ -142,7 +153,7 @@ function startPoll (bot, channel, onlineUsers){
       var response = '';
       
       unansweredList.forEach(function(id){
-          response += "<@"+ id +">, ";
+          response += "<@"+ id +"> ";
       });
       response += pickRandom(script.noResponse);
       response += " Help us finish the poll! \n";
@@ -201,7 +212,7 @@ function duringRollCall (msg, channel, user, bot, onlineUsers){
       /** All users have answered */
       if(answeredUserIds.length===onlineUsers.length){ 
       
-        channel.send("Good job guys! Now that that's over, let me remind you guys about what I do...");
+        channel.send("Good job guys! Now that that's over, let me remind you guys about what I can do.");
         bot.endConversation()
         
         setTimeout(function(){
@@ -579,7 +590,7 @@ function updateScore(user, reason, channel){
   User.score += change; //update database
   /** output  */
   
-  channel.send('<@'+user.id+'>'+ (change>0 ? '+':'-') + change + ' Point(s) (`'+reason+'`)');
+  channel.send('<@'+user.id+'>'+ (change>0 ? '+':'-') + change + ' point(s) (`'+reason+'`)');
   
 
 } //updateScore
