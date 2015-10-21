@@ -15,6 +15,7 @@ module.exports = {
     help: showHelp,
     schedule: showSchedule,
     leaderBoard: showLeaderBoard,
+    score: showScore,
     about: showAbout,
     intro: showIntro,
   },
@@ -415,6 +416,14 @@ function showSchedule (channel){
 } //showSchedule
 
 
+function showScore (channel, user){
+  var User = db.users.findOrCreate(user.id);
+  var res = '';
+  res += "`<@"+user.id+"> you have "+ User.score +" points. `"
+  channel.send(res);
+}
+
+
 function showAbout (channel){
   var response = '';
   response += "```I fought in wars you never even heard of... \n";
@@ -540,7 +549,7 @@ function updateScore(user, reason, channel){
   User.score += change; //update database
   /** output  */
   
-  channel.send('<@'+user.id+'>'+ (change>0 ? '+':'-') + change + ' Point(s) `for '+reason+'`');
+  channel.send('<@'+user.id+'>'+ (change>0 ? '+':'-') + change + ' Point(s) (for `'+reason+'`)');
   
 
 } //updateScore

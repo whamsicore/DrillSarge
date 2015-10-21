@@ -99,6 +99,9 @@ module.exports = function(token){
           else if(tag === 'leaderboard'){ //show
             helpers.show.leaderBoard(channel, onlineUsers);          
 
+          }
+          else if(tag === 'score'){ //show
+            helpers.show.score(channel, user);          
 
           }
           else if(tag === 'rollcall'){ //conversation

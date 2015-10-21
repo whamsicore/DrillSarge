@@ -8,6 +8,7 @@ module.exports = {
   'random': new RegExp('^random$', 'i'), //show available commands
   'schedule': new RegExp('^schedule$', 'i'), //show schedule for trivia and games
   'about': new RegExp('^about$', 'i'), //show schedule for trivia and games
+  'score': new RegExp('^score$', 'i'), //show your own score
   'leaderboard': new RegExp('^leaderboard$', 'i'), //show everyones scores
   'challenge': new RegExp('^challenge$', 'i'), 
   'salute': new RegExp('^salute$', 'i'), 
