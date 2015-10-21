@@ -41,14 +41,14 @@ module.exports = function(token){
     var channel = helpers.slack.findChannelByName('general', client); 
     var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
     
+    channel.send('*Atteeeeeention!* `Sarge is connected.`');
     // helpers.show.intro(channel);
 
-    // setTimeout(function(){
-    //   helpers.start.rollcall(channel, bot, onlineUsers);
+    setTimeout(function(){
+      helpers.start.rollcall(channel, bot, onlineUsers);
 
-    // }, 3000);
+    }, 1000);
     
-    channel.send('connected');
   }); 
 
 
@@ -59,7 +59,7 @@ module.exports = function(token){
     var onlineUsers = helpers.slack.getOnlineUsersForChannel(channel, client);
     var user = client.getUserByID(data.user);
     var msg = data.text;
-    
+
     var conversing = bot.state.conversing; 
     var memory = bot.state.memory;
 

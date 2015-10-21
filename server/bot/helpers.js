@@ -212,7 +212,7 @@ function duringRollCall (msg, channel, user, bot, onlineUsers){
       /** All users have answered */
       if(answeredUserIds.length===onlineUsers.length){ 
       
-        channel.send("Good job guys! Now that that's over, let me remind you guys about what I can do.");
+        channel.send("Good job guys! Now, let me remind you guys about what I can do:");
         bot.endConversation()
         
         setTimeout(function(){
@@ -366,10 +366,16 @@ function showHighfive (bot, channel, data, user){
 
   var target_id = data[1]; 
   
-  // add points for users in database
-  pointPlus(target_id, 5);
-  
-  channel.send("<@"+target_id+"> gets +5 points for being awesome! "+pickRandom(script.encourage)) ;
+  if(user.id===target_id){
+    channel.send("You CANNOT highfive yourself. "+pickRandom(script.discourage)) ;
+    
+  }else{
+
+    pointPlus(target_id, 5); // add points for users in database
+    
+    channel.send("<@"+target_id+"> gets +5 points for being awesome! "+pickRandom(script.encourage)) ;
+    
+  }
 
 } //showHighfive
 
@@ -500,7 +506,6 @@ function showScoreBoard (channel, onlineUsers){
 function showHelp (channel){
   var res = '';
 
-  res += "Useful Commands: \n"
   res += "`help`: Show commands \n"
   res += "`schedule`: Show daily schedule \n"
   res += "`poke`: I dare you to \n"
@@ -590,7 +595,7 @@ function updateScore(user, reason, channel){
   User.score += change; //update database
   /** output  */
   
-  channel.send('<@'+user.id+'>'+ (change>0 ? '+':'-') + change + ' point(s) (`'+reason+'`)');
+  channel.send('<@'+user.id+'>' + " `" + (change>0 ? '+':'-') + change + ' point `');
   
 
 } //updateScore
