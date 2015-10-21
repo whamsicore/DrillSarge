@@ -70,18 +70,8 @@ module.exports = function(token){
       ////////////////////
       /** NOTE: only if there is no ongoing conversation */
       var command = helpers.parse(msg);
-      
-      if(conversing){
-        if(command){
-          if(command.tag==='quit'){
-            channel.send("`(conversation cancelled)`");
-            bot.endConversation();
-          }
-          
-        } //if(command)
-      } //if(conversing)
 
-      //catch quit
+      // no conversation, then read command
       if(!conversing){
         
         if(command){
@@ -155,6 +145,13 @@ module.exports = function(token){
       ///////////////////
       /** there is an ongoing conversation */
       }else{ // conversing
+        //quit functionality
+        if(command){
+          if(command.tag==='quit'){
+            channel.send("`(conversation cancelled)`");
+            bot.endConversation();
+          }          
+        } //if(command)
 
         var topic = bot.state.memory.temp.topic; 
 
